@@ -7,6 +7,7 @@ import sys
 import random
 import bugzilla
 import requests
+from datetime import datetime
 
 
 URL = "https://bugzilla.redhat.com"
@@ -40,6 +41,8 @@ def notify_slack(hook, recipient, bug_url):
 
 
 if __name__ == '__main__':
+    random.seed(datetime.now())
+
     if TEAM_MEMBERS is None:
         sys.exit(
             ("Error: the JSON object describing the team is required. Set the "
