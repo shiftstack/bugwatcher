@@ -36,7 +36,7 @@ def notify_slack(hook, recipient, bug_url):
     x = requests.post(hook, json=msg)
 
     if x.text != "ok":
-        print(f'Error with Slack: {x.text}')
+        print(f'Error while notifying the assignment of {bug_url}: {x.text}')
 
 
 if __name__ == '__main__':
@@ -63,7 +63,11 @@ if __name__ == '__main__':
     query = bzapi.url_to_query(SHIFTSTACK_QUERY)
     query["include_fields"] = ["id", "weburl"]
 
-    for bug in bzapi.query(query):
+    bugs = bzapi.query(query)
+
+    print(f'Found {len(bugs)} bugs')
+
+    for bug in bugs:
         assignee = random.choice(TEAM_MEMBERS)
         bzapi.update_bugs([bug.id], bzapi.build_update(
             assigned_to=assignee['bz_id']))
