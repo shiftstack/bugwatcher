@@ -30,7 +30,7 @@ TEAM_MEMBERS = json.loads(os.getenv("TEAM_MEMBERS"))
 
 def notify_slack(hook, recipient, bug_url):
     msg = {'link_names': True,
-           'text': (f'<@{recipient}> you have been assigned'
+           'text': (f'<@{recipient}> you have been assigned '
                     f'the triage of this bug: {bug_url}')}
 
     x = requests.post(hook, json=msg)
