@@ -19,7 +19,7 @@ SHIFTSTACK_QUERY = (
     "otequals&o10=equals&o11=equals&o18=nowords&o19=equals&o3=equals&o4=equals"
     "&o5=equals&o7=anywords&o9=equals&query_format=advanced&v1=Documentation&v"
     "10=Machine%20Config%20Operator&v11=Cloud%20Compute&v18=Triaged&v19=eduen%"
-    "40redhat.com&v3=OpenShift%20on%20OpenStack&v4=OpenStack%20CSI%20drivers&v"
+    "40redhat.com&v3=OpenShift%20on%20OpenStack&v4=OpenStack%20CSI%20Drivers&v"
     "5=OpenStack%20Provider&v7=osp%20openstack&v9=Installer"
 )
 
