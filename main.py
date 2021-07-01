@@ -40,7 +40,9 @@ def notify_slack(hook, recipient, bug_url):
 
 
 if __name__ == '__main__':
-    random.seed(datetime.now().microsecond)
+    random_seed = datetime.now().microsecond
+    random.seed(random_seed)
+    print(f'random seed: { random_seed }')
 
     if TEAM_MEMBERS is None:
         sys.exit(
