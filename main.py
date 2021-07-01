@@ -4,7 +4,7 @@
 import os
 import json
 import sys
-import random
+import secrets
 import bugzilla
 import requests
 from datetime import datetime
@@ -40,7 +40,6 @@ def notify_slack(hook, recipient, bug_url):
 
 
 if __name__ == '__main__':
-    random.seed(datetime.now().microsecond)
 
     if TEAM_MEMBERS is None:
         sys.exit(
@@ -70,7 +69,7 @@ if __name__ == '__main__':
     print(f'Found {len(bugs)} bugs')
 
     for bug in bugs:
-        assignee = random.choice(TEAM_MEMBERS)
+        assignee = secrets.choice(TEAM_MEMBERS)
         bzapi.update_bugs([bug.id], bzapi.build_update(
             assigned_to=assignee['bz_id']))
         notify_slack(SLACK_HOOK, assignee['slack_id'], bug.weburl)
