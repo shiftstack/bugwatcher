@@ -13,14 +13,15 @@ from datetime import datetime
 URL = "https://bugzilla.redhat.com"
 SHIFTSTACK_QUERY = (
     "https://bugzilla.redhat.com/buglist.cgi?bug_status=__open__&f1=component&"
-    "f10=component&f11=component&f13=CP&f15=CP&f17=CP&f18=keywords&f19=assigne"
-    "d_to&f2=OP&f3=rh_sub_components&f4=rh_sub_components&f5=rh_sub_components"
-    "&f6=OP&f7=short_desc&f8=OP&f9=component&j2=OR&j8=OR&list_id=11921616&o1=n"
-    "otequals&o10=equals&o11=equals&o18=nowords&o19=equals&o3=equals&o4=equals"
-    "&o5=equals&o7=anywords&o9=equals&query_format=advanced&v1=Documentation&v"
-    "10=Machine%20Config%20Operator&v11=Cloud%20Compute&v18=Triaged&v19=eduen%"
-    "40redhat.com&v3=OpenShift%20on%20OpenStack&v4=OpenStack%20CSI%20Drivers&v"
-    "5=OpenStack%20Provider&v7=osp%20openstack&v9=Installer"
+    "f10=component&f11=component&f12=component&f13=CP&f15=CP&f17=CP&f18=keywor"
+    "ds&f19=assigned_to&f2=OP&f3=rh_sub_components&f4=rh_sub_components&f5=rh_"
+    "sub_components&f6=rh_sub_components&f7=OP&f8=short_desc&f9=OP&j2=OR&j9=OR"
+    "&list_id=12150483&o1=notequals&o10=equals&o11=equals&o12=equals&o18=nowor"
+    "ds&o19=equals&o3=equals&o4=equals&o5=equals&o6=equals&o8=anywords&query_f"
+    "ormat=advanced&v1=Documentation&v10=Installer&v11=Machine%20Config%20Oper"
+    "ator&v12=Cloud%20Compute&v18=Triaged&v19=eduen%40redhat.com&v3=OpenShift%"
+    "20on%20OpenStack&v4=OpenStack%20CSI%20Drivers&v5=OpenStack%20Provider&v6="
+    "platform-openstack&v8=osp%20openstack"
 )
 
 BUGZILLA_API_KEY = os.getenv("BUGZILLA_API_KEY")
