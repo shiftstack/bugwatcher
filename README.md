@@ -20,3 +20,11 @@ Required environment variables:
   }
 ]
 ```
+
+## Development
+
+To validate a Bugzilla query:
+
+1. Run `make query_url`
+1. Paste the resulting URL in your browser address bar
+1. Click on the button "Edit Search" at the bottom of the bug list
