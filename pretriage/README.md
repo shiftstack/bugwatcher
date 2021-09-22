@@ -1,5 +1,7 @@
 # Shiftstack Bugwatcher
 
+## pretriage
+
 Finds untriaged, unassigned Shiftstack bugs and assigns them to a team member.
 
 Required environment variables:
@@ -21,7 +23,7 @@ Required environment variables:
 ]
 ```
 
-## Development
+### Development
 
 To validate a Bugzilla query:
 
