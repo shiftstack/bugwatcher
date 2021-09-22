@@ -11,6 +11,6 @@ RUN dnf -y update \
 RUN pip install --upgrade pip && pip install pycodestyle
 
 WORKDIR /src
-COPY ./ ./
+COPY ./pretriage/ ./
 
 RUN pip install --requirement requirements.txt
