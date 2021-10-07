@@ -7,6 +7,7 @@ import sys
 import secrets
 import bugzilla
 import requests
+import tenacity
 from datetime import datetime
 
 
@@ -40,20 +41,13 @@ def notify_slack(hook, recipient, bug_url):
         print(f'Error while notifying the assignment of {bug_url}: {x.text}')
 
 
-if __name__ == '__main__':
-
-    if TEAM_MEMBERS is None:
-        sys.exit(
-            ("Error: the JSON object describing the team is required. Set the "
-             "TEAM_MEMBERS environment variable.")
-        )
-
-    if SLACK_HOOK is None:
-        sys.exit(
-            ("Error: Slack hook required. Set the SLACK_HOOK environment "
-             "variable.")
-        )
-
+@tenacity.retry(
+    reraise=True,
+    stop=tenacity.stop_after_attempt(10),
+    wait=tenacity.wait_fixed(5)
+)
+def fetch_bugs():
+    print('Fetching bugs...')
     bzapi = bugzilla.Bugzilla(URL, api_key=BUGZILLA_API_KEY)
     if not bzapi.logged_in:
         sys.exit(
@@ -74,3 +68,20 @@ if __name__ == '__main__':
         bzapi.update_bugs([bug.id], bzapi.build_update(
             assigned_to=assignee['bz_id']))
         notify_slack(SLACK_HOOK, assignee['slack_id'], bug.weburl)
+
+
+if __name__ == '__main__':
+
+    if TEAM_MEMBERS is None:
+        sys.exit(
+            ("Error: the JSON object describing the team is required. Set the "
+             "TEAM_MEMBERS environment variable.")
+        )
+
+    if SLACK_HOOK is None:
+        sys.exit(
+            ("Error: Slack hook required. Set the SLACK_HOOK environment "
+             "variable.")
+        )
+
+    fetch_bugs()
