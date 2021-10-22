@@ -20,9 +20,9 @@ SHIFTSTACK_QUERY = (
     "&list_id=12150483&o1=notequals&o10=equals&o11=equals&o12=equals&o18=nowor"
     "ds&o19=equals&o3=equals&o4=equals&o5=equals&o6=equals&o8=anywords&query_f"
     "ormat=advanced&v1=Documentation&v10=Installer&v11=Machine%20Config%20Oper"
-    "ator&v12=Cloud%20Compute&v18=Triaged&v19=shiftstack-bugwatcher%40redhat.c"
-    "om&v3=OpenShift%20on%20OpenStack&v4=OpenStack%20CSI%20Drivers&v5=OpenStac"
-    "k%20Provider&v6=platform-openstack&v8=osp%20openstack"
+    "ator&v12=Cloud%20Compute&v18=Triaged&v19=shiftstack-bugwatcher%40bot.bugz"
+    "illa.redhat.com&v3=OpenShift%20on%20OpenStack&v4=OpenStack%20CSI%20Driver"
+    "s&v5=OpenStack%20Provider&v6=platform-openstack&v8=osp%20openstack"
 )
 
 BUGZILLA_API_KEY = os.getenv("BUGZILLA_API_KEY")
