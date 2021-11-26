@@ -4,7 +4,8 @@
 import os
 import json
 import sys
-import secrets
+import ntplib
+import random
 import bugzilla
 import requests
 import tenacity
@@ -28,6 +29,11 @@ SHIFTSTACK_QUERY = (
 BUGZILLA_API_KEY = os.getenv("BUGZILLA_API_KEY")
 SLACK_HOOK = os.getenv("SLACK_HOOK")
 TEAM_MEMBERS = json.loads(os.getenv("TEAM_MEMBERS"))
+
+
+def random_seed():
+    c = ntplib.NTPClient()
+    return c.request('pool.ntp.org').tx_time
 
 
 def notify_slack(hook, recipient, bug_url):
@@ -64,14 +70,13 @@ def fetch_bugs():
     print(f'Found {len(bugs)} bugs')
 
     for bug in bugs:
-        assignee = secrets.choice(TEAM_MEMBERS)
+        assignee = random.choice(TEAM_MEMBERS)
         bzapi.update_bugs([bug.id], bzapi.build_update(
             assigned_to=assignee['bz_id']))
         notify_slack(SLACK_HOOK, assignee['slack_id'], bug.weburl)
 
 
 if __name__ == '__main__':
-
     if TEAM_MEMBERS is None:
         sys.exit(
             ("Error: the JSON object describing the team is required. Set the "
@@ -83,5 +88,7 @@ if __name__ == '__main__':
             ("Error: Slack hook required. Set the SLACK_HOOK environment "
              "variable.")
         )
+
+    random.seed(a=random_seed())
 
     fetch_bugs()
