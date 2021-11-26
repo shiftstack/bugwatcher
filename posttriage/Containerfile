@@ -1,0 +1,15 @@
+FROM fedora:35
+
+WORKDIR /src
+COPY ./posttriage/ ./
+
+RUN sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/fedora-cisco-openh264.repo \
+	&& sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/fedora-modular.repo \
+	&& sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/fedora-updates-modular.repo
+
+RUN ./retry 10 5 dnf -y update \
+	&& ./retry 10 5 dnf -y install pip \
+	&& dnf clean all
+
+RUN ./retry 5 5 pip install --upgrade pip && pip install pycodestyle
+RUN ./retry 5 5 pip install --requirement requirements.txt
