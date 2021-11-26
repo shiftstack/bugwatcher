@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os
@@ -28,7 +28,7 @@ SHIFTSTACK_QUERY = (
 
 BUGZILLA_API_KEY = os.getenv("BUGZILLA_API_KEY")
 SLACK_HOOK = os.getenv("SLACK_HOOK")
-TEAM_MEMBERS = json.loads(os.getenv("TEAM_MEMBERS"))
+TEAM_MEMBERS = []
 
 
 def random_seed():
@@ -75,13 +75,14 @@ def fetch_bugs():
             assigned_to=assignee['bz_id']))
         notify_slack(SLACK_HOOK, assignee['slack_id'], bug.weburl)
 
-
-if __name__ == '__main__':
-    if TEAM_MEMBERS is None:
+def run():
+    team = os.getenv("TEAM_MEMBERS")
+    if team is None:
         sys.exit(
             ("Error: the JSON object describing the team is required. Set the "
              "TEAM_MEMBERS environment variable.")
         )
+    TEAM_MEMBERS = json.loads(team)
 
     if SLACK_HOOK is None:
         sys.exit(
@@ -90,5 +91,7 @@ if __name__ == '__main__':
         )
 
     random.seed(a=random_seed())
-
     fetch_bugs()
+
+if __name__ == '__main__':
+    run()

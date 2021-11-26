@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os
@@ -33,7 +33,7 @@ def flag_status(flags, flag_name):
             return flag["status"]
 
 
-def check_bugs():
+def run():
     print('Fetching bugs...')
     bzapi = bugzilla.Bugzilla(URL, api_key=BUGZILLA_API_KEY)
     if not bzapi.logged_in:
@@ -75,4 +75,4 @@ def check_bugs():
 
 
 if __name__ == '__main__':
-    check_bugs()
+    run()
