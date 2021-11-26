@@ -13,4 +13,3 @@ if __name__ == '__main__':
         posttriage.run()
     else:
         sys.exit("Available commands are 'pretriage' and 'posttriage'.")
-            

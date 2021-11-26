@@ -75,6 +75,7 @@ def fetch_bugs():
             assigned_to=assignee['bz_id']))
         notify_slack(SLACK_HOOK, assignee['slack_id'], bug.weburl)
 
+
 def run():
     team = os.getenv("TEAM_MEMBERS")
     if team is None:
@@ -92,6 +93,7 @@ def run():
 
     random.seed(a=random_seed())
     fetch_bugs()
+
 
 if __name__ == '__main__':
     run()
