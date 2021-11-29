@@ -8,8 +8,8 @@ import ntplib
 import random
 import bugzilla
 import requests
+import secrets
 import tenacity
-from datetime import datetime
 
 
 URL = "https://bugzilla.redhat.com"
@@ -29,11 +29,18 @@ SHIFTSTACK_QUERY = (
 BUGZILLA_API_KEY = os.getenv("BUGZILLA_API_KEY")
 SLACK_HOOK = os.getenv("SLACK_HOOK")
 TEAM_MEMBERS = []
+RANDOM = random.choice
 
 
-def random_seed():
+def init_random():
     c = ntplib.NTPClient()
-    return c.request('pool.ntp.org').tx_time
+    try:
+        seed = c.request('pool.ntp.org').tx_time
+        random.seed(a=seed)
+    except ntplib.NTPException as err:
+        print(f'Failed to get time from NTP: {err}')
+        print(f'Falling back to secrets.choice()')
+        RANDOM = secrets.choice
 
 
 def notify_slack(hook, recipient, bug_url):
@@ -70,7 +77,7 @@ def fetch_bugs():
     print(f'Found {len(bugs)} bugs')
 
     for bug in bugs:
-        assignee = random.choice(TEAM_MEMBERS)
+        assignee = RANDOM(TEAM_MEMBERS)
         bzapi.update_bugs([bug.id], bzapi.build_update(
             assigned_to=assignee['bz_id']))
         notify_slack(SLACK_HOOK, assignee['slack_id'], bug.weburl)
@@ -91,7 +98,7 @@ def run():
              "variable.")
         )
 
-    random.seed(a=random_seed())
+    init_random()
     fetch_bugs()
 
 
