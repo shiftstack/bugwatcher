@@ -27,10 +27,6 @@ SHIFTSTACK_QUERY = (
     "s&v5=OpenStack%20Provider&v6=platform-openstack&v8=osp%20openstack"
 )
 
-BUGZILLA_API_KEY = os.getenv("BUGZILLA_API_KEY")
-SLACK_HOOK = os.getenv("SLACK_HOOK")
-TEAM_MEMBERS = []
-
 
 def random_seed():
     c = ntplib.NTPClient()
@@ -53,9 +49,9 @@ def notify_slack(hook, recipient, bug_url):
     stop=tenacity.stop_after_attempt(10),
     wait=tenacity.wait_fixed(5)
 )
-def fetch_bugs():
+def fetch_bugs(bugzilla_api_key, team, slack_hook):
     print('Fetching bugs...')
-    bzapi = bugzilla.Bugzilla(URL, api_key=BUGZILLA_API_KEY)
+    bzapi = bugzilla.Bugzilla(URL, api_key=bugzilla_api_key)
     if not bzapi.logged_in:
         sys.exit(
             ("Error: You are not logged into Bugzilla. Get an API key here: "
@@ -71,10 +67,10 @@ def fetch_bugs():
     print(f'Found {len(bugs)} bugs')
 
     for bug in bugs:
-        assignee = random.choice(TEAM_MEMBERS)
+        assignee = random.choice(team)
         bzapi.update_bugs([bug.id], bzapi.build_update(
             assigned_to=assignee['bz_id']))
-        notify_slack(SLACK_HOOK, assignee['slack_id'], bug.weburl)
+        notify_slack(slack_hook, assignee['slack_id'], bug.weburl)
 
 
 def run():
@@ -84,16 +80,20 @@ def run():
             ("Error: the JSON object describing the team is required. Set the "
              "TEAM_MEMBERS environment variable.")
         )
-    TEAM_MEMBERS = json.loads(team)
+    team = json.loads(team)
 
-    if SLACK_HOOK is None:
+    slack_hook = os.getenv("SLACK_HOOK")
+    if slack_hook is None:
         sys.exit(
             ("Error: Slack hook required. Set the SLACK_HOOK environment "
              "variable.")
         )
 
+    bugzilla_api_key = os.getenv("BUGZILLA_API_KEY")
+
     random.seed(a=random_seed())
-    fetch_bugs()
+
+    fetch_bugs(bugzilla_api_key, team, slack_hook)
 
 
 if __name__ == '__main__':
