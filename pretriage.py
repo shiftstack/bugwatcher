@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import argparse
 import json
 import sys
 import ntplib
@@ -96,4 +97,6 @@ def run():
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Finds untriaged, unassigned ShiftStack bugs and assigns them to a team member.')
+    args = parser.parse_args()
     run()

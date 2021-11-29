@@ -3,6 +3,7 @@
 
 import os
 import sys
+import argparse
 import bugzilla
 
 
@@ -78,4 +79,6 @@ def run():
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Resets the "Triaged" keyword on bugs that still need attention.')
+    args = parser.parse_args()
     run()
