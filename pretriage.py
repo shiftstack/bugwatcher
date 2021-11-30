@@ -28,6 +28,11 @@ SHIFTSTACK_QUERY = (
 )
 
 
+@tenacity.retry(
+    reraise=True,
+    stop=tenacity.stop_after_attempt(10),
+    wait=tenacity.wait_fixed(5)
+)
 def random_seed():
     c = ntplib.NTPClient()
     return c.request('pool.ntp.org').tx_time
