@@ -64,14 +64,12 @@ def run():
         if missing_priority:
             reasons.append("* the priority assessment is missing")
         if missing_qetest:
-            reasons.append(f'* the QE automation assessment'
-                           '(flag {QE_TEST_COVERAGE_FLAG}) is missing')
+            reasons.append(f'* the QE automation assessment (flag {QE_TEST_COVERAGE_FLAG}) is missing')
 
         if missing_severity or missing_priority or missing_qetest:
             reasons = "\n".join(reasons)
             update = bzapi.build_update(
-                comment=(f'Removing the {TRIAGED_KEYWORD} keyword '
-                         'because:\n{reasons}'),
+                comment=f'Removing the {TRIAGED_KEYWORD} keyword because:\n{reasons}',
                 keywords_remove=TRIAGED_KEYWORD,
             )
             bzapi.update_bugs([bug.id], update)
