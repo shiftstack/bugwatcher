@@ -31,7 +31,7 @@ SHIFTSTACK_QUERY = (
 @tenacity.retry(
     reraise=True,
     stop=tenacity.stop_after_attempt(10),
-    wait=tenacity.wait_fixed(5)
+    wait=tenacity.wait_fixed(40)
 )
 def random_seed():
     c = ntplib.NTPClient()
