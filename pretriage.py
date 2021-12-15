@@ -52,7 +52,7 @@ def notify_slack(hook, recipient, bug_url):
 @tenacity.retry(
     reraise=True,
     stop=tenacity.stop_after_attempt(10),
-    wait=tenacity.wait_fixed(5)
+    wait=tenacity.wait_fixed(40)
 )
 def fetch_bugs(bugzilla_api_key, team, slack_hook):
     print('Fetching bugs...')
