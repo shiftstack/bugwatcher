@@ -29,7 +29,7 @@ Required environment variables:
 
 To validate a Bugzilla query:
 
-1. Run `make pretriage_query_url`
+1. Run `make query_url_pretriage`
 1. Paste the resulting URL in your browser address bar
 1. Click on the button "Edit Search" at the bottom of the bug list
 
@@ -47,6 +47,6 @@ Required environment variables:
 
 To validate a Bugzilla query:
 
-1. Run `make posttriage_query_url`
+1. Run `make query_url_posttriage`
 1. Paste the resulting URL in your browser address bar
 1. Click on the button "Edit Search" at the bottom of the bug list
