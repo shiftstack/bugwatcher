@@ -13,18 +13,16 @@ from datetime import datetime
 
 URL = "https://bugzilla.redhat.com"
 SHIFTSTACK_QUERY = (
-    "https://bugzilla.redhat.com/buglist.cgi?bug_status=VERIFIED&bug_status=CL"
-    "OSED&f1=component&f10=component&f11=component&f12=component&f13=CP&f15=CP"
-    "&f17=CP&f18=cf_doc_type&f19=target_release&f2=OP&f3=rh_sub_components&f4="
-    "rh_sub_components&f5=rh_sub_components&f6=rh_sub_components&f7=OP&f8=shor"
-    "t_desc&f9=OP&j2=OR&j9=OR&list_id=12342003&o1=notequals&o10=equals&o11=equ"
-    "als&o12=equals&o18=equals&o19=substring&o3=equals&o4=equals&o5=equals&o6="
-    "equals&o8=anywords&query_format=advanced&resolution=---&resolution=CURREN"
-    "TRELEASE&resolution=ERRATA&resolution=UPSTREAM&v1=Documentation&v10=Insta"
-    "ller&v11=Machine%20Config%20Operator&v12=Cloud%20Compute&v18=If%20docs%20"
-    "needed%2C%20set%20a%20value&v19=4.10&v3=OpenShift%20on%20OpenStack&v4=Ope"
-    "nStack%20CSI%20Drivers&v5=OpenStack%20Provider&v6=platform-openstack&v8=o"
-    "sp%20openstack"
+    "https://bugzilla.redhat.com/buglist.cgi?bug_status=VERIFIED&bug_status=ON"
+    "_QA&f1=component&f10=component&f11=component&f12=component&f13=CP&f15=CP&"
+    "f17=CP&f18=cf_doc_type&f2=OP&f3=rh_sub_components&f4=rh_sub_components&f5"
+    "=rh_sub_components&f6=rh_sub_components&f7=OP&f8=short_desc&f9=OP&j2=OR&j"
+    "9=OR&list_id=12370014&o1=notequals&o10=equals&o11=equals&o12=equals&o18=e"
+    "quals&o3=equals&o4=equals&o5=equals&o6=equals&o8=anywords&query_format=ad"
+    "vanced&v1=Documentation&v10=Installer&v11=Machine%20Config%20Operator&v12"
+    "=Cloud%20Compute&v18=If%20docs%20needed%2C%20set%20a%20value&v3=OpenShift"
+    "%20on%20OpenStack&v4=OpenStack%20CSI%20Drivers&v5=OpenStack%20Provider&v6"
+    "=platform-openstack&v8=osp%20openstack"
 )
 
 
