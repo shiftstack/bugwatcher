@@ -75,18 +75,29 @@ def fetch_bugs(bugzilla_api_key, team, slack_hook):
     print(f'Found {len(bugs)} bugs')
 
     for bug in bugs:
+        print(f'Processing bug {bug.id}')
         specialists = [
             m for m in team if bug.component in m.get('components', [])
         ]
         if specialists:
+            print(
+                f'Found {len(specialists)} specialists for bug {bug.id} '
+                f'(component: {bug.componment}'
+            )
             assignee = random.choice(specialists)
         else:
+            print(
+                f'Found no specialists for bug {bug.id} '
+                f'(component: {bug.componment}'
+            )
             assignee = random.choice(team)
 
         bzapi.update_bugs(
             [bug.id], bzapi.build_update(assigned_to=assignee['bz_id'])
         )
+        print(f'Assigned bug {bug.id}')
         notify_slack(slack_hook, assignee['slack_id'], bug.weburl)
+        print(f'Notified assignee about bug {bug.id}')
 
 
 def run():
