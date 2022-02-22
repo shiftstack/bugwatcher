@@ -75,7 +75,14 @@ def fetch_bugs(bugzilla_api_key, team, slack_hook):
     print(f'Found {len(bugs)} bugs')
 
     for bug in bugs:
-        assignee = random.choice(team)
+        specialists = [
+            m for m in team if bug.component in m.get('components', [])
+        ]
+        if specialists:
+            assignee = random.choice(specialists)
+        else:
+            assignee = random.choice(team)
+
         bzapi.update_bugs(
             [bug.id], bzapi.build_update(assigned_to=assignee['bz_id'])
         )
@@ -89,6 +96,8 @@ def run():
             "Error: the JSON object describing the team is required. Set the "
             "TEAM_MEMBERS environment variable."
         )
+    # a json blob; this should contain list of objects with the following keys:
+    # bz_id, slack_id, components
     team = json.loads(team)
 
     slack_hook = os.getenv("SLACK_HOOK")
