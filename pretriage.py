@@ -1,16 +1,15 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
-import os
 import argparse
 import json
-import sys
 import ntplib
+import os
 import random
+import sys
+
 import bugzilla
 import requests
 import tenacity
-from datetime import datetime
 
 
 URL = "https://bugzilla.redhat.com"
@@ -31,7 +30,7 @@ SHIFTSTACK_QUERY = (
 @tenacity.retry(
     reraise=True,
     stop=tenacity.stop_after_attempt(10),
-    wait=tenacity.wait_fixed(40)
+    wait=tenacity.wait_fixed(40),
 )
 def random_seed():
     c = ntplib.NTPClient()
@@ -39,9 +38,13 @@ def random_seed():
 
 
 def notify_slack(hook, recipient, bug_url):
-    msg = {'link_names': True,
-           'text': (f'<@{recipient}> you have been assigned '
-                    f'the triage of this bug: {bug_url}')}
+    msg = {
+        'link_names': True,
+        'text': (
+            f'<@{recipient}> you have been assigned the triage of this '
+            f'bug: {bug_url}'
+        ),
+    }
 
     x = requests.post(hook, json=msg)
 
@@ -52,16 +55,16 @@ def notify_slack(hook, recipient, bug_url):
 @tenacity.retry(
     reraise=True,
     stop=tenacity.stop_after_attempt(10),
-    wait=tenacity.wait_fixed(40)
+    wait=tenacity.wait_fixed(40),
 )
 def fetch_bugs(bugzilla_api_key, team, slack_hook):
     print('Fetching bugs...')
     bzapi = bugzilla.Bugzilla(URL, api_key=bugzilla_api_key)
     if not bzapi.logged_in:
         sys.exit(
-            ("Error: You are not logged into Bugzilla. Get an API key here: "
-             "https://bugzilla.redhat.com/userprefs.cgi?tab=apikey then set "
-             "the BUGZILLA_API_KEY environment variable.")
+            "Error: You are not logged into Bugzilla. Get an API key here: "
+            "https://bugzilla.redhat.com/userprefs.cgi?tab=apikey then set "
+            "the BUGZILLA_API_KEY environment variable."
         )
 
     query = bzapi.url_to_query(SHIFTSTACK_QUERY)
@@ -72,26 +75,47 @@ def fetch_bugs(bugzilla_api_key, team, slack_hook):
     print(f'Found {len(bugs)} bugs')
 
     for bug in bugs:
-        assignee = random.choice(team)
-        bzapi.update_bugs([bug.id], bzapi.build_update(
-            assigned_to=assignee['bz_id']))
+        print(f'Processing bug {bug.id}')
+        specialists = [
+            m for m in team if bug.component in m.get('components', [])
+        ]
+        if specialists:
+            print(
+                f'Found {len(specialists)} specialists for bug {bug.id} '
+                f'(component: {bug.componment}'
+            )
+            assignee = random.choice(specialists)
+        else:
+            print(
+                f'Found no specialists for bug {bug.id} '
+                f'(component: {bug.componment}'
+            )
+            assignee = random.choice(team)
+
+        bzapi.update_bugs(
+            [bug.id], bzapi.build_update(assigned_to=assignee['bz_id'])
+        )
+        print(f'Assigned bug {bug.id}')
         notify_slack(slack_hook, assignee['slack_id'], bug.weburl)
+        print(f'Notified assignee about bug {bug.id}')
 
 
 def run():
     team = os.getenv("TEAM_MEMBERS")
     if team is None:
         sys.exit(
-            ("Error: the JSON object describing the team is required. Set the "
-             "TEAM_MEMBERS environment variable.")
+            "Error: the JSON object describing the team is required. Set the "
+            "TEAM_MEMBERS environment variable."
         )
+    # a json blob; this should contain list of objects with the following keys:
+    # bz_id, slack_id, components
     team = json.loads(team)
 
     slack_hook = os.getenv("SLACK_HOOK")
     if slack_hook is None:
         sys.exit(
-            ("Error: Slack hook required. Set the SLACK_HOOK environment "
-             "variable.")
+            "Error: Slack hook required. Set the SLACK_HOOK environment "
+            "variable."
         )
 
     bugzilla_api_key = os.getenv("BUGZILLA_API_KEY")
@@ -102,6 +126,11 @@ def run():
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Finds untriaged, unassigned ShiftStack bugs and assigns them to a team member.')
+    parser = argparse.ArgumentParser(
+        description=(
+            'Finds untriaged, unassigned ShiftStack bugs and assigns them to '
+            'a team member.'
+        ),
+    )
     args = parser.parse_args()
     run()
