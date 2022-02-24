@@ -68,7 +68,7 @@ def fetch_bugs(bugzilla_api_key, team, slack_hook):
         )
 
     query = bzapi.url_to_query(SHIFTSTACK_QUERY)
-    query["include_fields"] = ["id", "weburl"]
+    query["include_fields"] = ["id", "weburl", "component"]
 
     bugs = bzapi.query(query)
 
