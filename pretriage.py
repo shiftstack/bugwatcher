@@ -82,13 +82,13 @@ def fetch_bugs(bugzilla_api_key, team, slack_hook):
         if specialists:
             print(
                 f'Found {len(specialists)} specialists for bug {bug.id} '
-                f'(component: {bug.componment}'
+                f'(component: {bug.component}'
             )
             assignee = random.choice(specialists)
         else:
             print(
                 f'Found no specialists for bug {bug.id} '
-                f'(component: {bug.componment}'
+                f'(component: {bug.component}'
             )
             assignee = random.choice(team)
 
