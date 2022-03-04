@@ -15,15 +15,16 @@ import tenacity
 URL = "https://bugzilla.redhat.com"
 SHIFTSTACK_QUERY = (
     "https://bugzilla.redhat.com/buglist.cgi?bug_status=__open__&f1=component&"
-    "f10=component&f11=component&f12=component&f13=CP&f15=CP&f17=CP&f18=keywor"
-    "ds&f19=assigned_to&f2=OP&f3=rh_sub_components&f4=rh_sub_components&f5=rh_"
-    "sub_components&f6=rh_sub_components&f7=OP&f8=short_desc&f9=OP&j2=OR&j9=OR"
-    "&list_id=12150483&o1=notequals&o10=equals&o11=equals&o12=equals&o18=nowor"
-    "ds&o19=equals&o3=equals&o4=equals&o5=equals&o6=equals&o8=anywords&query_f"
-    "ormat=advanced&v1=Documentation&v10=Installer&v11=Machine%20Config%20Oper"
-    "ator&v12=Cloud%20Compute&v18=Triaged&v19=shiftstack-bugwatcher%40bot.bugz"
-    "illa.redhat.com&v3=OpenShift%20on%20OpenStack&v4=OpenStack%20CSI%20Driver"
-    "s&v5=OpenStack%20Provider&v6=platform-openstack&v8=osp%20openstack"
+    "f10=OP&f11=component&f12=component&f13=component&f14=CP&f16=CP&f18=CP&f19"
+    "=keywords&f2=OP&f20=assigned_to&f3=rh_sub_components&f4=rh_sub_components"
+    "&f5=rh_sub_components&f6=rh_sub_components&f7=rh_sub_components&f8=OP&f9="
+    "short_desc&j10=OR&j2=OR&list_id=12471018&o1=notequals&o11=equals&o12=equa"
+    "ls&o13=equals&o19=nowords&o20=equals&o3=equals&o4=equals&o5=equals&o6=equ"
+    "als&o7=equals&o9=anywords&query_format=advanced&v1=Documentation&v11=Inst"
+    "aller&v12=Machine%20Config%20Operator&v13=Cloud%20Compute&v19=Triaged&v20"
+    "=shiftstack-bugwatcher%40bot.bugzilla.redhat.com&v3=OpenShift%20on%20Open"
+    "Stack&v4=OpenStack%20CSI%20Drivers&v5=OpenStack%20Provider&v6=platform-op"
+    "enstack&v7=kuryr&v9=osp%20openstack"
 )
 
 
