@@ -44,17 +44,20 @@ To validate the Bugzilla query:
 
 ## posttriage
 
-Usage: `./posttriage.py`
+Usage:
+* for Bugzilla: `./posttriage.py`
+* for Jira: `go build ./cmd/posttriage && ./posttriage`
 
 Resets the `Triaged` keyword on bugs that still need attention.
 
 Required environment variables:
 
 * `BUGZILLA_API_KEY`: a [Bugzilla API key](https://bugzilla.redhat.com/userprefs.cgi?tab=apikey). 
+* `JIRA_TOKEN`: a [Jira API token](https://issues.redhat.com/secure/ViewProfile.jspa?selectedTab=com.atlassian.pats.pats-plugin:jira-user-personal-access-tokens) of an account that can access the OCPBUGS project
 
 ### Development
 
-To validate a Bugzilla query:
+To validate the Bugzilla query:
 
 1. Run `make query_url_posttriage`
 1. Paste the resulting URL in your browser address bar
