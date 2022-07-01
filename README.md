@@ -12,7 +12,7 @@ Required environment variables:
 
 * `BUGZILLA_API_KEY`: a [Bugzilla API key](https://bugzilla.redhat.com/userprefs.cgi?tab=apikey)
 * `JIRA_TOKEN`: a [Jira API token](https://issues.redhat.com/secure/ViewProfile.jspa?selectedTab=com.atlassian.pats.pats-plugin:jira-user-personal-access-tokens) of an account that can access the OCPBUGS project
-* `SLACK_HOOK`: a Slack hook URL
+* `SLACK_HOOK`: a [Slack hook](https://api.slack.com/messaging/webhooks) URL
 * `TEAM_MEMBERS` is a JSON object in the form:
 
 ```json
@@ -71,8 +71,8 @@ Finds OCP 4.10 resolved bugs lacking a doc text, and posts a reminder to Slack.
 
 Required environment variables:
 
-* `BUGZILLA_API_KEY`: a [Bugzilla API key](https://bugzilla.redhat.com/userprefs.cgi?tab=apikey). 
-* `SLACK_HOOK`: a Slack hook URL.
+* `BUGZILLA_API_KEY`: a [Bugzilla API key](https://bugzilla.redhat.com/userprefs.cgi?tab=apikey)
+* `SLACK_HOOK`: a [Slack hook](https://api.slack.com/messaging/webhooks) URL
 * `TEAM_MEMBERS` is a JSON object in the form:
 
 ```json
