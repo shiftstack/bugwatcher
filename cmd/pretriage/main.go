@@ -28,7 +28,6 @@ const query = `
 			component in (
 				"Installer",
 				"Machine Config Operator",
-				"Machine Config Operator/Machine Config Operator",
 				"Machine Config Operator/platform-none",
 				"Cloud Compute/Cloud Controller Manager",
 				"Cloud Compute/Cluster Autoscaler",
