@@ -114,8 +114,8 @@ def get_team_list():
 
     now = datetime.now()
     for vacation in json.loads(vacation):
-        if datetime.fromisoformat(vacation['end']) > now:
-            if datetime.fromisoformat(vacation['start']) < now:
+        if datetime.strptime(vacation['end'], '%Y-%m-%d') > now:
+            if datetime.strptime(vacation['start'], '%Y-%m-%d') < now:
                 team.pop(vacation['kerberos'], None)
 
     return [team[member] for member in team]
