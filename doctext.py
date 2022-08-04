@@ -81,13 +81,14 @@ def fetch_bugs(bugzilla_api_key, team, slack_hook):
 
 
 def run():
-    team = os.getenv("TEAM_MEMBERS")
+    team = os.getenv("TEAM_MEMBERS_DICT")
     if team is None:
         sys.exit(
             ("Error: the JSON object describing the team is required. Set the "
-             "TEAM_MEMBERS environment variable.")
+             "TEAM_MEMBERS_DICT environment variable.")
         )
     team = json.loads(team)
+    team = [team[member] for member in team]
 
     slack_hook = os.getenv("SLACK_HOOK")
     if slack_hook is None:

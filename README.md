@@ -90,20 +90,7 @@ Required environment variables:
 
 * `BUGZILLA_API_KEY`: a [Bugzilla API key](https://bugzilla.redhat.com/userprefs.cgi?tab=apikey)
 * `SLACK_HOOK`: a [Slack hook](https://api.slack.com/messaging/webhooks) URL
-* `TEAM_MEMBERS` is a JSON object in the form:
-
-```json
-[
-  {
-    "slack_id": "UG65473AM",
-    "bz_id": "user1@example.com"
-  },
-  {
-    "slack_id": "UGF8B93HA",
-    "bz_id": "user2@example.com"
-  }
-]
-```
+* `TEAM_MEMBERS_DICT` as described above
 
 ### Development
 
