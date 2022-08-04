@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"math/rand"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -44,18 +44,16 @@ const query = `
 	`
 
 var (
-	SLACK_HOOK   = os.Getenv("SLACK_HOOK")
-	JIRA_TOKEN   = os.Getenv("JIRA_TOKEN")
-	TEAM_MEMBERS = os.Getenv("TEAM_MEMBERS")
+	SLACK_HOOK        = os.Getenv("SLACK_HOOK")
+	JIRA_TOKEN        = os.Getenv("JIRA_TOKEN")
+	TEAM_MEMBERS_DICT = os.Getenv("TEAM_MEMBERS_DICT")
+	TEAM_VACATION     = os.Getenv("TEAM_VACATION")
 )
 
 func main() {
 	var team Team
-	{
-		err := json.Unmarshal([]byte(TEAM_MEMBERS), &team)
-		if err != nil {
-			log.Fatalf("error unmarshaling TEAM_MEMBERS: %v", err)
-		}
+	if err := team.Load(strings.NewReader(TEAM_MEMBERS_DICT), strings.NewReader(TEAM_VACATION)); err != nil {
+		log.Fatalf("error unmarshaling TEAM_MEMBERS_DICT: %v", err)
 	}
 
 	var jiraClient *jira.Client
@@ -119,9 +117,13 @@ func init() {
 		log.Print("Required environment variable not found: JIRA_TOKEN")
 	}
 
-	if TEAM_MEMBERS == "" {
+	if TEAM_MEMBERS_DICT == "" {
 		ex_usage = true
-		log.Print("Required environment variable not found: TEAM_MEMBERS")
+		log.Print("Required environment variable not found: TEAM_MEMBERS_DICT")
+	}
+
+	if TEAM_VACATION == "" {
+		TEAM_VACATION = "[]"
 	}
 
 	if ex_usage {

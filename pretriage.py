@@ -6,6 +6,7 @@ import ntplib
 import os
 import random
 import sys
+from datetime import datetime
 
 import bugzilla
 import requests
@@ -101,16 +102,27 @@ def fetch_bugs(bugzilla_api_key, team, slack_hook):
         print(f'Notified assignee about bug {bug.id}')
 
 
-def run():
-    team = os.getenv("TEAM_MEMBERS")
+def get_team_list():
+    team = os.getenv("TEAM_MEMBERS_DICT")
+    vacation = os.getenv("TEAM_VACATION")
     if team is None:
         sys.exit(
             "Error: the JSON object describing the team is required. Set the "
-            "TEAM_MEMBERS environment variable."
+            "TEAM_MEMBERS_DICT environment variable."
         )
-    # a json blob; this should contain list of objects with the following keys:
-    # bz_id, slack_id, components
     team = json.loads(team)
+
+    now = datetime.now()
+    for vacation in json.loads(vacation):
+        if datetime.fromisoformat(vacation['end']) > now:
+            if datetime.fromisoformat(vacation['start']) < now:
+                team.pop(vacation['kerberos'], None)
+
+    return [team[member] for member in team]
+
+
+def run():
+    team = get_team_list()
 
     slack_hook = os.getenv("SLACK_HOOK")
     if slack_hook is None:
