@@ -13,23 +13,40 @@ Required environment variables:
 * `BUGZILLA_API_KEY`: a [Bugzilla API key](https://bugzilla.redhat.com/userprefs.cgi?tab=apikey)
 * `JIRA_TOKEN`: a [Jira API token](https://issues.redhat.com/secure/ViewProfile.jspa?selectedTab=com.atlassian.pats.pats-plugin:jira-user-personal-access-tokens) of an account that can access the OCPBUGS project
 * `SLACK_HOOK`: a [Slack hook](https://api.slack.com/messaging/webhooks) URL
-* `TEAM_MEMBERS` is a JSON object in the form:
+* `TEAM_MEMBERS_DICT` is a JSON object in the form:
 
 ```json
-[
-  {
+{
+  "kerberos_id1": {
     "slack_id": "UG65473AM",
     "bz_id": "user1@example.com",
     "components": ["component1"],
     "jira_name": "user1",
     "jira_components": ["component1/sub-component1"]
   },
-  {
+  "kerberos_id2": {
     "slack_id": "UGF8B93HA",
     "bz_id": "user2@example.com",
     "components": [],
     "jira_name": "user2",
     "jira_components": []
+  }
+}
+```
+
+Optional environment variable: `TEAM_VACATION` in the form:
+
+```json
+[
+  {
+    "kerberos": "jdoe",
+    "start": "2022-01-01",
+    "end": "2022-01-15"
+  },
+  {
+    "kerberos": "jdoe",
+    "start": "2022-06-12",
+    "end": "2022-06-15"
   }
 ]
 ```
