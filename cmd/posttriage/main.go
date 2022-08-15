@@ -18,19 +18,19 @@ const (
 		project = "OpenShift Bugs"
 		AND (
 			component in (
-				"Installer/OpenShift on OpenStack",
-				"Storage/OpenStack CSI Drivers",
-				"Cloud Compute/OpenStack Provider",
-				"Machine Config Operator/platform-openstack",
-				"Networking/kuryr")
+				"Installer / OpenShift on OpenStack",
+				"Storage / OpenStack CSI Drivers",
+				"Cloud Compute / OpenStack Provider",
+				"Machine Config Operator / platform-openstack",
+				"Networking / kuryr")
 			OR (
 				component in (
 					"Installer",
 					"Machine Config Operator",
-					"Cloud Compute/Cloud Controller Manager",
-					"Cloud Compute/Cluster Autoscaler",
-					"Cloud Compute/MachineHealthCheck",
-					"Cloud Compute/Other Provider")
+					"Cloud Compute / Cloud Controller Manager",
+					"Cloud Compute / Cluster Autoscaler",
+					"Cloud Compute / MachineHealthCheck",
+					"Cloud Compute / Other Provider")
 				AND (
 					summary ~ "osp"
 					OR summary ~ "openstack"
