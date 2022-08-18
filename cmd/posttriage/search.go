@@ -27,8 +27,6 @@ func searchIssues(ctx context.Context, client *jira.Client, searchString string)
 				return
 			}
 
-			log.Printf("Incoming batch of issues: found %d", len(issues))
-
 			for _, issue := range issues {
 				issueCh <- issue
 			}
