@@ -11,6 +11,7 @@ import (
 	jira "github.com/andygrunwald/go-jira"
 )
 
+// untriage removes the Triage label and comments on the issue
 func untriage(ctx context.Context, jiraClient *jira.Client, issue jira.Issue, comment string) error {
 	// Remove the Triaged label
 	{
@@ -20,7 +21,7 @@ func untriage(ctx context.Context, jiraClient *jira.Client, issue jira.Issue, co
 			},
 		})
 		if err != nil {
-			return fmt.Errorf("error while setting issue %q as non triaged: %w", issue.Key, err)
+			return fmt.Errorf("failed setting issue %q as non triaged: %w", issue.Key, err)
 		}
 
 		io.Copy(os.Stderr, res.Body)
@@ -39,7 +40,7 @@ func untriage(ctx context.Context, jiraClient *jira.Client, issue jira.Issue, co
 			Body: comment,
 		})
 		if err != nil {
-			return fmt.Errorf("error while commenting issue %q: %w", issue.Key, err)
+			return fmt.Errorf("failed commenting issue %q: %w", issue.Key, err)
 		}
 
 		io.Copy(os.Stderr, res.Body)

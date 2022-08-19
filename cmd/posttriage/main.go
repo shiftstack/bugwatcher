@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -55,28 +56,57 @@ func main() {
 			jiraBaseURL,
 		)
 		if err != nil {
-			log.Fatalf("error building a Jira client: %v", err)
+			log.Fatalf("FATAL: error building a Jira client: %v", err)
 		}
 	}
 
-	var gotErrors bool
-	var wg sync.WaitGroup
-	missingPriorityComment := "Removing the Triaged label because the Priority assessment is missing."
+	triageChecks := [...]triageCheck{
+		priorityCheck,
+		testCoverageCheck,
+	}
+
+	var (
+		found     int
+		gotErrors bool
+		wg        sync.WaitGroup
+	)
 	for issue := range searchIssues(ctx, jiraClient, queryTriaged) {
 		wg.Add(1)
+		found++
 		go func(issue jira.Issue) {
 			defer wg.Done()
-			if issue.Fields.Priority == nil || issue.Fields.Priority.Name == "Undefined" {
-				log.Printf("Untriaging issue %q because of missing Priority", issue.Key)
-				if err := untriage(ctx, jiraClient, issue, missingPriorityComment); err != nil {
+			reasons := make([]string, 0, len(triageChecks))
+
+			for _, check := range triageChecks {
+				triaged, msg, err := check(issue)
+				if err != nil {
+					log.Printf("WARNING: Triage check failed: %v", err)
+					continue
+				}
+				if !triaged {
+					reasons = append(reasons, msg)
+				}
+			}
+
+			if len(reasons) > 0 {
+				log.Printf("INFO: Untriaging %q because %s", issue.Key, reasons)
+
+				var comment strings.Builder
+				comment.WriteString("Removing the Triaged label because:\n")
+				for _, reason := range reasons {
+					comment.WriteString("* " + reason + "\n")
+				}
+
+				if err := untriage(ctx, jiraClient, issue, comment.String()); err != nil {
 					gotErrors = true
-					log.Print(err)
-					return
+					log.Printf("ERROR: Failed to untriage %q: %v", issue.Key, err)
 				}
 			}
 		}(issue)
 	}
 	wg.Wait()
+
+	log.Printf("INFO: The query found %d bugs", found)
 
 	if gotErrors {
 		os.Exit(1)
@@ -85,8 +115,7 @@ func main() {
 
 func init() {
 	if JIRA_TOKEN == "" {
-		log.Print("Required environment variable not found: JIRA_TOKEN")
-		log.Print("Exiting.")
+		log.Print("FATAL: Required environment variable not found: JIRA_TOKEN")
 		os.Exit(64)
 	}
 
