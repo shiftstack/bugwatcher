@@ -62,6 +62,7 @@ func main() {
 
 	triageChecks := [...]triageCheck{
 		priorityCheck,
+		testCoverageCheck,
 	}
 
 	var (
