@@ -23,7 +23,9 @@ const query = `
 			"Storage / OpenStack CSI Drivers",
 			"Cloud Compute / OpenStack Provider",
 			"Machine Config Operator / platform-openstack",
-			"Networking / kuryr")
+			"Networking / kuryr",
+			"Test Framework / OpenStack"
+		)
 		OR (
 			component in (
 				"Installer",
