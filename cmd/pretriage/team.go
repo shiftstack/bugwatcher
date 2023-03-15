@@ -84,3 +84,17 @@ func (t Team) NewAssignee(component string) TeamMember {
 	}
 	return specialists[rand.Intn(len(specialists))]
 }
+
+// MemberByJiraName returns the first team member found that has the given Jira
+// name, and true. The boolean is false if no team member was found with that
+// Jira name.
+func (t Team) MemberByJiraName(jiraName string) (TeamMember, bool) {
+	for _, members := range t {
+		for _, member := range members {
+			if member.JiraName == jiraName {
+				return member, true
+			}
+		}
+	}
+	return TeamMember{}, false
+}

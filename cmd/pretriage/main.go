@@ -78,14 +78,29 @@ func main() {
 		wg.Add(1)
 		go func(issue jira.Issue) {
 			defer wg.Done()
+			var assignee TeamMember
+			if parent, isBackport, err := backportParent(jiraClient, issue); isBackport {
+				if err != nil {
+					log.Print(err)
+					gotErrors = true
+					return
+				}
+				log.Printf("Issue %q has parent %q, which is assigned to %q", issue.Key, parent.Key, parent.Fields.Assignee.Name)
+				if teamMember, ok := team.MemberByJiraName(parent.Fields.Assignee.Name); ok {
+					assignee = teamMember
+				}
+			}
 
-			// "It should be 1 component per bug" 🤞
-			// The current JQL query filters in by component anyway.
-			//
-			// https://coreos.slack.com/archives/C02F4Q7EF5L/p1656519746123569
-			issueComponent := issue.Fields.Components[0].Name
-			assignee := team.NewAssignee(issueComponent)
-			log.Printf("Issue %q has component %q and will be assigned to %q", issue.Key, issueComponent, assignee.JiraName)
+			if assignee.JiraName == "" {
+				// "It should be 1 component per bug" 🤞
+				// The current JQL query filters in by component anyway.
+				//
+				// https://coreos.slack.com/archives/C02F4Q7EF5L/p1656519746123569
+				issueComponent := issue.Fields.Components[0].Name
+				assignee = team.NewAssignee(issueComponent)
+			}
+
+			log.Printf("Assigning issue %q to %q", issue.Key, assignee.JiraName)
 
 			if err := assign(jiraClient, issue, assignee); err != nil {
 				gotErrors = true
