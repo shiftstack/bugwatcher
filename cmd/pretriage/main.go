@@ -85,7 +85,7 @@ func main() {
 					gotErrors = true
 					return
 				}
-				log.Printf("Issue %q has parent %q, which is assigned to %q", issue.Key, parent.Key, parent.Fields.Assignee.Name)
+				log.Printf("Issue %q has parent %q, which is assigned to %q", issue.Key, parent.Key, censorEmail(parent.Fields.Assignee.Name))
 				if teamMember, ok := team.MemberByJiraName(parent.Fields.Assignee.Name); ok {
 					assignee = teamMember
 				}
@@ -100,7 +100,7 @@ func main() {
 				assignee = team.NewAssignee(issueComponent)
 			}
 
-			log.Printf("Assigning issue %q to %q", issue.Key, assignee.JiraName)
+			log.Printf("Assigning issue %q to %q", issue.Key, censorEmail(assignee.JiraName))
 
 			if err := assign(jiraClient, issue, assignee); err != nil {
 				gotErrors = true
