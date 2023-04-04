@@ -34,7 +34,8 @@ const query = `
 				"Cloud Compute / Cloud Controller Manager",
 				"Cloud Compute / Cluster Autoscaler",
 				"Cloud Compute / MachineHealthCheck",
-				"Cloud Compute / Other Provider")
+				"Cloud Compute / Other Provider"
+			)
 			AND (
 				summary ~ "osp"
 				OR summary ~ "openstack"
