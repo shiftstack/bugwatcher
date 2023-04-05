@@ -44,7 +44,7 @@ const (
 
 	queryTriaged = baseQuery + `
 	AND status in ("Release Pending", Verified, ON_QA)
-	AND "Release Note Text" is EMPTY 
+	AND "Release Note Text" is EMPTY
 	`
 )
 
