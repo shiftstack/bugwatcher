@@ -35,8 +35,7 @@ const (
 				"Cloud Compute / Cloud Controller Manager",
 				"Cloud Compute / Cluster Autoscaler",
 				"Cloud Compute / MachineHealthCheck",
-				"Cloud Compute / Other Provider"
-			)
+				"Cloud Compute / Other Provider")
 			AND (
 				summary ~ "osp"
 				OR summary ~ "openstack"
@@ -46,7 +45,6 @@ const (
 	`
 
 	queryUntriaged = baseQuery + `
-	AND assignee is EMPTY
 	AND (labels not in ("Triaged") OR labels is EMPTY)
 	`
 )
@@ -55,12 +53,13 @@ var (
 	SLACK_HOOK        = os.Getenv("SLACK_HOOK")
 	JIRA_TOKEN        = os.Getenv("JIRA_TOKEN")
 	TEAM_MEMBERS_DICT = os.Getenv("TEAM_MEMBERS_DICT")
-	TEAM_VACATION     = os.Getenv("TEAM_VACATION")
 )
 
 func main() {
+	ctx := context.Background()
+
 	var team Team
-	if err := team.Load(strings.NewReader(TEAM_MEMBERS_DICT), strings.NewReader(TEAM_VACATION)); err != nil {
+	if err := team.Load(strings.NewReader(TEAM_MEMBERS_DICT)); err != nil {
 		log.Fatalf("error unmarshaling TEAM_MEMBERS_DICT: %v", err)
 	}
 
@@ -76,52 +75,44 @@ func main() {
 		}
 	}
 
+	var (
+		found     int
+		gotErrors bool
+		wg        sync.WaitGroup
+	)
 	slackClient := &http.Client{}
-
-	var gotErrors bool
-	var wg sync.WaitGroup
-	for issue := range searchIssues(context.Background(), jiraClient, queryUntriaged) {
+	issuesByAssignee := make(map[string][]jira.Issue)
+	for issue := range searchIssues(ctx, jiraClient, queryUntriaged) {
 		wg.Add(1)
+		found++
 		go func(issue jira.Issue) {
 			defer wg.Done()
-			var assignee TeamMember
-			if parent, isBackport, err := backportParent(jiraClient, issue); isBackport {
-				if err != nil {
-					log.Print(err)
-					gotErrors = true
-					return
-				}
-				log.Printf("Issue %q has parent %q, which is assigned to %q", issue.Key, parent.Key, censorEmail(parent.Fields.Assignee.Name))
-				if teamMember, ok := team.MemberByJiraName(parent.Fields.Assignee.Name); ok {
-					assignee = teamMember
-				}
-			}
 
-			if assignee.JiraName == "" {
-				// "It should be 1 component per bug" 🤞
-				// The current JQL query filters in by component anyway.
-				//
-				// https://coreos.slack.com/archives/C02F4Q7EF5L/p1656519746123569
-				issueComponent := issue.Fields.Components[0].Name
-				assignee = team.NewAssignee(issueComponent)
+			var assignee string
+			if issue.Fields.Assignee == nil {
+				assignee = "team"
+			} else {
+				assignee = issue.Fields.Assignee.Name
 			}
+			issuesByAssignee[assignee] = append(issuesByAssignee[assignee], issue)
 
-			log.Printf("Assigning issue %q to %q", issue.Key, censorEmail(assignee.JiraName))
-
-			if err := assign(jiraClient, issue, assignee); err != nil {
-				gotErrors = true
-				log.Print(err)
-				return
-			}
-
-			if err := notify(SLACK_HOOK, slackClient, issue, assignee); err != nil {
-				gotErrors = true
-				log.Print(err)
-				return
-			}
 		}(issue)
 	}
 	wg.Wait()
+
+	for assignee, issues := range issuesByAssignee {
+		teamMember, ok := team[assignee]
+		if !ok {
+			log.Printf("failed to find slack ID for team member %s", assignee)
+			teamMember = team["team"]
+		}
+
+		if err := notify(SLACK_HOOK, slackClient, issues, teamMember); err != nil {
+			gotErrors = true
+			log.Print(err)
+			return
+		}
+	}
 
 	if gotErrors {
 		os.Exit(1)
@@ -143,10 +134,6 @@ func init() {
 	if TEAM_MEMBERS_DICT == "" {
 		ex_usage = true
 		log.Print("Required environment variable not found: TEAM_MEMBERS_DICT")
-	}
-
-	if TEAM_VACATION == "" {
-		TEAM_VACATION = "[]"
 	}
 
 	if ex_usage {
