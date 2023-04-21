@@ -25,11 +25,13 @@ const (
 				"Cloud Compute / OpenStack Provider",
 				"Machine Config Operator / platform-openstack",
 				"Networking / kuryr",
-				"Test Framework / OpenStack")
+				"Test Framework / OpenStack"
+			)
 			OR (
 				component in (
 					"Installer",
 					"Machine Config Operator",
+					"Machine Config Operator / platform-none",
 					"Cloud Compute / Cloud Controller Manager",
 					"Cloud Compute / Cluster Autoscaler",
 					"Cloud Compute / MachineHealthCheck",
