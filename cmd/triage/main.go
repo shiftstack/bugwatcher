@@ -46,6 +46,7 @@ const (
 
 	queryUntriaged = baseQuery + `
 	AND (labels not in ("Triaged") OR labels is EMPTY)
+	AND status != closed
 	`
 )
 
