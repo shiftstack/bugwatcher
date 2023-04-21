@@ -47,7 +47,9 @@ func (t *Team) Load(teamJSON io.Reader) error {
 
 	// team is a map of JiraID to TeamMember
 	team := map[string]TeamMember{
-		"team": {SlackId: "openstack-dev-team", JiraName: "team"},
+		// ID of openstack-dev-team user group
+		// https://api.slack.com/reference/surfaces/formatting#mentioning-groups
+		"team": {SlackId: "!subteam^SKW6QC31Q", JiraName: "team"},
 	}
 
 	for _, member := range members {
