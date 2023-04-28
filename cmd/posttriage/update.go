@@ -17,7 +17,7 @@ func untriage(ctx context.Context, jiraClient *jira.Client, issue jira.Issue, co
 	{
 		res, err := jiraClient.Issue.UpdateIssueWithContext(ctx, issue.ID, map[string]interface{}{
 			"update": map[string]interface{}{
-				"labels": json.RawMessage(`[{"remove":"Triaged"}]`),
+				"labels": json.RawMessage(`[{"remove":"Triaged"},{"remove":"triaged"}]`),
 			},
 		})
 		if err != nil {
