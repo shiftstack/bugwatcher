@@ -3,12 +3,10 @@ package main
 import (
 	"context"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
 	"strings"
 	"sync"
-	"time"
 
 	jira "github.com/andygrunwald/go-jira"
 )
@@ -140,6 +138,4 @@ func init() {
 		log.Print("Exiting.")
 		os.Exit(64)
 	}
-
-	rand.Seed(time.Now().UnixNano())
 }
