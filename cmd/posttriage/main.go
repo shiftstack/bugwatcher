@@ -8,41 +8,10 @@ import (
 	"sync"
 
 	jira "github.com/andygrunwald/go-jira"
+	"github.com/shiftstack/bugwatcher/pkg/query"
 )
 
-const (
-	jiraBaseURL = "https://issues.redhat.com/"
-
-	baseQuery = `
-		project = "OpenShift Bugs"
-		AND (
-			component in (
-				"Installer / OpenShift on OpenStack",
-				"Storage / OpenStack CSI Drivers",
-				"Cloud Compute / OpenStack Provider",
-				"Machine Config Operator / platform-openstack",
-				"Networking / kuryr",
-				"Test Framework / OpenStack"
-			)
-			OR (
-				component in (
-					"Installer",
-					"Machine Config Operator",
-					"Machine Config Operator / platform-none",
-					"Cloud Compute / Cloud Controller Manager",
-					"Cloud Compute / Cluster Autoscaler",
-					"Cloud Compute / MachineHealthCheck",
-					"Cloud Compute / Other Provider")
-				AND (
-					summary ~ "osp"
-					OR summary ~ "openstack"
-				)
-			)
-		)
-	`
-
-	queryTriaged = baseQuery + `AND labels = "Triaged"`
-)
+const queryTriaged = query.ShiftStack + `AND labels = "Triaged"`
 
 var JIRA_TOKEN = os.Getenv("JIRA_TOKEN")
 
@@ -54,7 +23,7 @@ func main() {
 		var err error
 		jiraClient, err = jira.NewClient(
 			(&jira.BearerAuthTransport{Token: JIRA_TOKEN}).Client(),
-			jiraBaseURL,
+			query.JiraBaseURL,
 		)
 		if err != nil {
 			log.Fatalf("FATAL: error building a Jira client: %v", err)

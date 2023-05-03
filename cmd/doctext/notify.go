@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	jira "github.com/andygrunwald/go-jira"
+	"github.com/shiftstack/bugwatcher/pkg/query"
 )
 
 func notification(issues []jira.Issue, assignee TeamMember) string {
@@ -22,7 +23,7 @@ func notification(issues []jira.Issue, assignee TeamMember) string {
 	var notification strings.Builder
 	notification.WriteString(slackId + " please check the Release Note Text of these bugs:")
 	for _, issue := range issues {
-		notification.WriteString(fmt.Sprintf(" <%s|%s>", jiraBaseURL+"browse/"+issue.Key, issue.Key))
+		notification.WriteString(fmt.Sprintf(" <%s|%s>", query.JiraBaseURL+"browse/"+issue.Key, issue.Key))
 	}
 	return notification.String()
 }
