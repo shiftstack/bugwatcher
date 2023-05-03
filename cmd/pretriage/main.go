@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	jira "github.com/andygrunwald/go-jira"
 	"github.com/shiftstack/bugwatcher/pkg/query"
@@ -41,6 +42,7 @@ func main() {
 
 	slackClient := &http.Client{}
 
+	now := time.Now()
 	var gotErrors bool
 	var wg sync.WaitGroup
 	for issue := range searchIssues(context.Background(), jiraClient, queryUntriaged) {
@@ -66,7 +68,13 @@ func main() {
 				//
 				// https://coreos.slack.com/archives/C02F4Q7EF5L/p1656519746123569
 				issueComponent := issue.Fields.Components[0].Name
-				assignee = team.NewAssignee(issueComponent)
+				var err error
+				assignee, err = RandomAvailable(team.Specialists(issueComponent), now)
+				if err != nil {
+					gotErrors = true
+					log.Printf("Error finding an assignee for issue %q: %v", issue.Key, err)
+					return
+				}
 			}
 
 			log.Printf("Assigning issue %q to %q", issue.Key, censorEmail(assignee.JiraName))
