@@ -3,11 +3,9 @@ package main
 import (
 	"context"
 	"log"
-	"math/rand"
 	"os"
 	"strings"
 	"sync"
-	"time"
 
 	jira "github.com/andygrunwald/go-jira"
 )
@@ -122,6 +120,4 @@ func init() {
 		log.Print("FATAL: Required environment variable not found: JIRA_TOKEN")
 		os.Exit(64)
 	}
-
-	rand.Seed(time.Now().UnixNano())
 }
