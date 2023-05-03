@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	jira "github.com/andygrunwald/go-jira"
+	"github.com/shiftstack/bugwatcher/pkg/query"
 )
 
 func notify(slackHook string, slackClient *http.Client, issue jira.Issue, assignee TeamMember) error {
@@ -17,7 +18,7 @@ func notify(slackHook string, slackClient *http.Client, issue jira.Issue, assign
 		Text      string `json:"text"`
 	}{
 		LinkNames: true,
-		Text:      "<@" + assignee.SlackId + "> you have been assigned the triage of this bug: " + jiraBaseURL + "browse/" + issue.Key,
+		Text:      "<@" + assignee.SlackId + "> you have been assigned the triage of this bug: " + query.JiraBaseURL + "browse/" + issue.Key,
 	})
 	if err != nil {
 		return fmt.Errorf("error while preparing the Slack notification for bug %s: %w", issue.Key, err)
