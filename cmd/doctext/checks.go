@@ -9,7 +9,7 @@ import jira "github.com/andygrunwald/go-jira"
 type triageCheck func(jira.Issue) (triaged bool, msg string, err error)
 
 func docTextCheck(issue jira.Issue) (bool, string, error) {
-	if issue.Fields.Unknowns["customfield_12310211"] == nil {
+	if issue.Fields.Unknowns["customfield_12317313"] == nil {
 		return false, "the Release Note Text is missing", nil
 	}
 	return true, "", nil
