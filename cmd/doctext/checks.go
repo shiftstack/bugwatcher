@@ -1,6 +1,10 @@
 package main
 
-import jira "github.com/andygrunwald/go-jira"
+import (
+	"fmt"
+
+	jira "github.com/andygrunwald/go-jira"
+)
 
 // triageCheck verifies one Triage condition.
 // Returns true if the issue is triaged according to that particular condition.
@@ -14,13 +18,21 @@ func docTextCheck(issue jira.Issue) (bool, string, error) {
 	//
 	// Release Note Type -> customfield_12320850
 	// Release Note Text -> customfield_12317313
+
 	if issue.Fields.Unknowns["customfield_12320850"] != nil {
-		if issue.Fields.Unknowns["customfield_12320850"] == "No Doc Update" {
+		releaseNoteType, ok := issue.Fields.Unknowns["customfield_12320850"].(map[string]any)
+		if !ok {
+			return false, "", fmt.Errorf("failed to parse release note type for issue %s", issue.Key)
+		}
+		releaseNoteText := issue.Fields.Unknowns["customfield_12317313"]
+
+		if releaseNoteType["id"] == "31862" { // No Doc Update
 			return true, "", nil
 		}
-		if issue.Fields.Unknowns["customfield_12317313"] != nil {
+		if releaseNoteText != nil {
 			return true, "", nil
 		}
 	}
+
 	return false, "the Release Note Text is missing", nil
 }
