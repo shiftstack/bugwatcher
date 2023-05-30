@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	jira "github.com/andygrunwald/go-jira"
+	"github.com/shiftstack/bugwatcher/cmd/triage/tasker"
 	"github.com/shiftstack/bugwatcher/pkg/query"
 )
 
@@ -46,7 +47,7 @@ func main() {
 		wg        sync.WaitGroup
 	)
 	slackClient := &http.Client{}
-	issuesByAssignee := make(map[string][]jira.Issue)
+	issuesByAssignee := new(tasker.Tasker)
 	for issue := range searchIssues(ctx, jiraClient, queryUntriaged) {
 		wg.Add(1)
 		found++
@@ -59,13 +60,18 @@ func main() {
 			} else {
 				assignee = issue.Fields.Assignee.Name
 			}
-			issuesByAssignee[assignee] = append(issuesByAssignee[assignee], issue)
+			issuesByAssignee.Assign(assignee, issue)
 
 		}(issue)
 	}
 	wg.Wait()
 
-	for assignee, issues := range issuesByAssignee {
+	for {
+		assignee, issues, ok := issuesByAssignee.Pop()
+		if !ok {
+			break
+		}
+
 		teamMember, ok := team[assignee]
 		if !ok {
 			log.Printf("failed to find slack ID for team member %s", assignee)
