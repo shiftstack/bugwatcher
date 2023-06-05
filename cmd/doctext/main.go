@@ -51,7 +51,7 @@ func main() {
 	)
 	slackClient := &http.Client{}
 	issues := make(map[string][]jira.Issue)
-	for issue := range searchIssues(ctx, jiraClient, queryTriaged) {
+	for issue := range query.SearchIssues(ctx, jiraClient, queryTriaged) {
 		wg.Add(1)
 		found++
 		go func(issue jira.Issue) {

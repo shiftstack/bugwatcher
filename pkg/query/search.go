@@ -1,4 +1,4 @@
-package main
+package query
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	jira "github.com/andygrunwald/go-jira"
 )
 
-func searchIssues(ctx context.Context, client *jira.Client, searchString string) <-chan jira.Issue {
+func SearchIssues(ctx context.Context, client *jira.Client, searchString string) <-chan jira.Issue {
 	issueCh := make(chan jira.Issue)
 
 	go func() {
@@ -26,6 +26,8 @@ func searchIssues(ctx context.Context, client *jira.Client, searchString string)
 				log.Printf("unexpected status code %q while fetching issues", res.Status)
 				return
 			}
+
+			log.Printf("Incoming batch of %d issues", len(issues))
 
 			for _, issue := range issues {
 				issueCh <- issue

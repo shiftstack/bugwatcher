@@ -48,7 +48,7 @@ func main() {
 	)
 	slackClient := &http.Client{}
 	issuesByAssignee := new(tasker.Tasker)
-	for issue := range searchIssues(ctx, jiraClient, queryUntriaged) {
+	for issue := range query.SearchIssues(ctx, jiraClient, queryUntriaged) {
 		wg.Add(1)
 		found++
 		go func(issue jira.Issue) {

@@ -41,7 +41,7 @@ func main() {
 		gotErrors bool
 		wg        sync.WaitGroup
 	)
-	for issue := range searchIssues(ctx, jiraClient, queryTriaged) {
+	for issue := range query.SearchIssues(ctx, jiraClient, queryTriaged) {
 		wg.Add(1)
 		found++
 		go func(issue jira.Issue) {

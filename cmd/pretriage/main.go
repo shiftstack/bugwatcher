@@ -45,7 +45,7 @@ func main() {
 	now := time.Now()
 	var gotErrors bool
 	var wg sync.WaitGroup
-	for issue := range searchIssues(context.Background(), jiraClient, queryUntriaged) {
+	for issue := range query.SearchIssues(context.Background(), jiraClient, queryUntriaged) {
 		wg.Add(1)
 		go func(issue jira.Issue) {
 			defer wg.Done()
