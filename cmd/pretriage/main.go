@@ -56,9 +56,11 @@ func main() {
 					gotErrors = true
 					return
 				}
-				log.Printf("Issue %q has parent %q, which is assigned to %q", issue.Key, parent.Key, censorEmail(parent.Fields.Assignee.Name))
-				if teamMember, ok := team.MemberByJiraName(parent.Fields.Assignee.Name); ok {
-					assignee = teamMember
+				if parent.Fields.Assignee != nil {
+					log.Printf("Issue %q has parent %q, which is assigned to %q", issue.Key, parent.Key, censorEmail(parent.Fields.Assignee.Name))
+					if teamMember, ok := team.MemberByJiraName(parent.Fields.Assignee.Name); ok {
+						assignee = teamMember
+					}
 				}
 			}
 
