@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"os"
 	"strings"
@@ -15,7 +16,7 @@ const queryTriaged = query.ShiftStack + `AND labels = "Triaged"`
 
 var JIRA_TOKEN = os.Getenv("JIRA_TOKEN")
 
-func main() {
+func postTriage(dryRun bool) {
 	ctx := context.Background()
 
 	var jiraClient *jira.Client
@@ -68,9 +69,11 @@ func main() {
 					comment.WriteString("* " + reason + "\n")
 				}
 
-				if err := untriage(ctx, jiraClient, issue, comment.String()); err != nil {
-					gotErrors = true
-					log.Printf("ERROR: Failed to untriage %q: %v", issue.Key, err)
+				if ! dryRun {
+					if err := untriage(ctx, jiraClient, issue, comment.String()); err != nil {
+						gotErrors = true
+						log.Printf("ERROR: Failed to untriage %q: %v", issue.Key, err)
+					}
 				}
 			}
 		}(issue)
@@ -82,6 +85,21 @@ func main() {
 	if gotErrors {
 		os.Exit(1)
 	}
+}
+
+func main() {
+	var help = flag.Bool("help", false, "Show help")
+	var dryRun = false
+	flag.BoolVar(&dryRun, "dryRun", false, "Dry run (do not assign)")
+
+	flag.Parse()
+
+	if *help {
+		flag.Usage()
+		os.Exit(0)
+	}
+
+	postTriage(dryRun)
 }
 
 func init() {

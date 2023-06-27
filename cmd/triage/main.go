@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -21,7 +22,7 @@ var (
 	TEAM_MEMBERS_DICT = os.Getenv("TEAM_MEMBERS_DICT")
 )
 
-func main() {
+func triage(dryRun bool) {
 	ctx := context.Background()
 
 	var team Team
@@ -78,16 +79,33 @@ func main() {
 			teamMember = team["team"]
 		}
 
-		if err := notify(SLACK_HOOK, slackClient, issues, teamMember); err != nil {
-			gotErrors = true
-			log.Print(err)
-			return
+		if ! dryRun {
+			if err := notify(SLACK_HOOK, slackClient, issues, teamMember); err != nil {
+				gotErrors = true
+				log.Print(err)
+				return
+			}
 		}
 	}
 
 	if gotErrors {
 		os.Exit(1)
 	}
+}
+
+func main() {
+	var help = flag.Bool("help", false, "Show help")
+	var dryRun = false
+	flag.BoolVar(&dryRun, "dryRun", false, "Dry run (do not assign)")
+
+	flag.Parse()
+
+	if *help {
+		flag.Usage()
+		os.Exit(0)
+	}
+
+	triage(dryRun)
 }
 
 func init() {

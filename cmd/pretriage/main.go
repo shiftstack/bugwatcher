@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -22,7 +23,7 @@ var (
 	TEAM_VACATION     = os.Getenv("TEAM_VACATION")
 )
 
-func main() {
+func preTriage(dryRun bool) {
 	var team Team
 	if err := team.Load(strings.NewReader(TEAM_MEMBERS_DICT), strings.NewReader(TEAM_VACATION)); err != nil {
 		log.Fatalf("error unmarshaling TEAM_MEMBERS_DICT: %v", err)
@@ -81,16 +82,17 @@ func main() {
 
 			log.Printf("Assigning issue %q to %q", issue.Key, censorEmail(assignee.JiraName))
 
-			if err := assign(jiraClient, issue, assignee); err != nil {
-				gotErrors = true
-				log.Print(err)
-				return
-			}
-
-			if err := notify(SLACK_HOOK, slackClient, issue, assignee); err != nil {
-				gotErrors = true
-				log.Print(err)
-				return
+			if ! dryRun {
+				if err := assign(jiraClient, issue, assignee); err != nil {
+					gotErrors = true
+					log.Print(err)
+					return
+				}
+				if err := notify(SLACK_HOOK, slackClient, issue, assignee); err != nil {
+					gotErrors = true
+					log.Print(err)
+					return
+				}
 			}
 		}(issue)
 	}
@@ -99,6 +101,21 @@ func main() {
 	if gotErrors {
 		os.Exit(1)
 	}
+}
+
+func main() {
+	var help = flag.Bool("help", false, "Show help")
+	var dryRun = false
+	flag.BoolVar(&dryRun, "dryRun", false, "Dry run (do not assign)")
+
+	flag.Parse()
+
+	if *help {
+		flag.Usage()
+		os.Exit(0)
+	}
+
+	preTriage(dryRun)
 }
 
 func init() {
