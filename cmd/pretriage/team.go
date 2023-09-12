@@ -80,6 +80,7 @@ func (t *Team) Load(teamJSON, vacationJSON io.Reader) error {
 					Start: leave.Start,
 					End:   leave.End,
 				})
+				members[leave.Kerberos] = m
 			}
 		}
 	}
