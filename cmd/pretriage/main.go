@@ -100,6 +100,8 @@ func main() {
 }
 
 func init() {
+	log.SetFlags(log.Ldate | log.Ltime | log.LUTC)
+
 	ex_usage := false
 	if SLACK_HOOK == "" {
 		ex_usage = true
