@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"math/rand"
 	"time"
 )
@@ -74,12 +75,15 @@ func (t *Team) Load(teamJSON, vacationJSON io.Reader) error {
 			return fmt.Errorf("failed to unmarshal vacation: %w", err)
 		}
 
-		for _, leave := range vacation {
+		for i, leave := range vacation {
 			if m, ok := members[leave.Kerberos]; ok {
 				m.vacation = append(m.vacation, Leave{
 					Start: leave.Start,
 					End:   leave.End,
 				})
+				members[leave.Kerberos] = m
+			} else {
+				log.Printf("warning: vacation entry with index %d did not apply to any team member", i)
 			}
 		}
 	}
