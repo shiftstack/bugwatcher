@@ -13,7 +13,7 @@ import (
 	"github.com/shiftstack/bugwatcher/pkg/query"
 )
 
-const queryUntriaged = query.ShiftStack + `AND (labels not in ("Triaged") OR labels is EMPTY)`
+const queryUntriaged = query.ShiftStack + `AND (labels not in ("Triaged") OR labels is EMPTY) AND "Need Info From" is EMPTY`
 
 var (
 	SLACK_HOOK        = os.Getenv("SLACK_HOOK")
