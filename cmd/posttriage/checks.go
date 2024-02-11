@@ -35,17 +35,9 @@ func ReleaseBlockerFromIssue(issue jira.Issue) (releaseBlocker, error) {
 		return releaseBlockerNone, nil
 	}
 
-	releaseBlockerSlice, err := issue.Fields.Unknowns.Slice("customfield_12319743")
-	if err != nil {
-		return releaseBlockerNone, err
-	}
-	if len(releaseBlockerSlice) < 1 {
-		return releaseBlockerNone, nil
-	}
-
-	releaseBlockerMap, ok := releaseBlockerSlice[0].(map[string]any)
+	releaseBlockerMap, ok := issue.Fields.Unknowns["customfield_12319743"].(map[string]any)
 	if !ok {
-		return releaseBlockerNone, fmt.Errorf("failed to parse Test Coverage")
+		return releaseBlockerNone, fmt.Errorf("failed to parse (not a map)")
 	}
 
 	// https://confluence.atlassian.com/jirakb/how-to-retrieve-available-options-for-a-multi-select-customfield-via-jira-rest-api-815566715.html
@@ -57,7 +49,7 @@ func ReleaseBlockerFromIssue(issue jira.Issue) (releaseBlocker, error) {
 	case "25757":
 		return releaseBlockerRejected, nil
 	default:
-		return releaseBlockerNone, fmt.Errorf("unknown release blocker value: %s", releaseBlockerMap["id"])
+		return releaseBlockerNone, fmt.Errorf("unknown Release Blocker value: %s", releaseBlockerMap["id"])
 	}
 
 }
@@ -99,7 +91,7 @@ func TestCoverageFromIssue(issue jira.Issue) (testCoverage, error) {
 
 	testCoverageMap, ok := testCoverageSlice[0].(map[string]any)
 	if !ok {
-		return testCoverageNone, fmt.Errorf("failed to parse Test Coverage")
+		return testCoverageNone, fmt.Errorf("failed to parse (not a slice of maps)")
 	}
 
 	// https://confluence.atlassian.com/jirakb/how-to-retrieve-available-options-for-a-multi-select-customfield-via-jira-rest-api-815566715.html
