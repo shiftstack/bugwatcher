@@ -51,7 +51,7 @@ func main() {
 			for _, check := range triageChecks {
 				triaged, msg, err := check(issue)
 				if err != nil {
-					log.Printf("WARNING: Triage check failed: %v", err)
+					log.Printf("WARNING: issue %s: Triage check failed: %v", issue.Key, err)
 					continue
 				}
 				if !triaged {
