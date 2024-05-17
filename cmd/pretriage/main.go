@@ -65,13 +65,8 @@ func main() {
 			}
 
 			if assignee.JiraName == "" {
-				// "It should be 1 component per bug" 🤞
-				// The current JQL query filters in by component anyway.
-				//
-				// https://coreos.slack.com/archives/C02F4Q7EF5L/p1656519746123569
-				issueComponent := issue.Fields.Components[0].Name
 				var err error
-				assignee, err = RandomAvailable(team.Specialists(issueComponent), now)
+				assignee, err = team.RandomAvailable(now)
 				if err != nil {
 					gotErrors = true
 					log.Printf("Error finding an assignee for issue %q: %v", issue.Key, err)
