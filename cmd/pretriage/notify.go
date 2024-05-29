@@ -6,10 +6,25 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	jira "github.com/andygrunwald/go-jira"
 	"github.com/shiftstack/bugwatcher/pkg/query"
 )
+
+func notification(issue jira.Issue, assignee TeamMember) string {
+	var slackId string
+	if strings.HasPrefix(assignee.SlackId, "!subteam^") {
+		slackId = "<" + assignee.SlackId + ">"
+	} else {
+		slackId = "<@" + assignee.SlackId + ">"
+	}
+
+	var notification strings.Builder
+	notification.WriteString(slackId + " you have been assigned triage of this bug:")
+	notification.WriteString(fmt.Sprintf(" <%s|%s>", query.JiraBaseURL+"browse/"+issue.Key, issue.Key))
+	return notification.String()
+}
 
 func notify(slackHook string, slackClient *http.Client, issue jira.Issue, assignee TeamMember) error {
 	var msg bytes.Buffer
@@ -18,7 +33,7 @@ func notify(slackHook string, slackClient *http.Client, issue jira.Issue, assign
 		Text      string `json:"text"`
 	}{
 		LinkNames: true,
-		Text:      "<@" + assignee.SlackId + "> you have been assigned the triage of this bug: " + query.JiraBaseURL + "browse/" + issue.Key,
+		Text:      notification(issue, assignee),
 	})
 	if err != nil {
 		return fmt.Errorf("error while preparing the Slack notification for bug %s: %w", issue.Key, err)
