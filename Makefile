@@ -1,8 +1,21 @@
+run-pretriage: pretriage
+	./hack/run_with_env.sh ./$<
+.PHONY: run-pretriage
+
 lint:
 	go fmt ./...
+.PHONY: lint
 
-build:
-	go build ./cmd/pretriage
-	go build ./cmd/triage
-	go build ./cmd/posttriage
-	go build ./cmd/doctext
+build: pretriage triage posttriage doctext
+
+pretriage: cmd/pretriage pkg/query
+	go build ./$<
+
+triage: cmd/triage pkg/query
+	go build ./$<
+
+posttriage: cmd/posttriage pkg/query
+	go build ./$<
+
+doctext: cmd/doctext pkg/query
+	go build ./$<
