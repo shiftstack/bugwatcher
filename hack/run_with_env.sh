@@ -29,6 +29,7 @@ fetch_secret() {
 	fi
 
 	jq -r -c ".data.data.\"$entry\"" < "$secret"
+	rm "$secret"
 }
 
 # check_or_fetch takes the name of an environment variable, and a vault
