@@ -3,7 +3,7 @@ run-pretriage: pretriage
 .PHONY: run-pretriage
 
 lint:
-	go fmt ./...
+	gofmt -w -s cmd pkg
 .PHONY: lint
 
 build: pretriage triage posttriage doctext
