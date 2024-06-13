@@ -8,11 +8,11 @@ import (
 	jira "github.com/andygrunwald/go-jira"
 )
 
-func assign(jiraClient *jira.Client, issue jira.Issue, assignee TeamMember) error {
-	res, err := jiraClient.Issue.UpdateAssignee(issue.ID, &jira.User{Name: assignee.JiraName})
+func update(jiraClient *jira.Client, issue jira.Issue, updates map[string]interface{}) error {
+	res, err := jiraClient.Issue.UpdateIssue(issue.ID, updates)
 	if err != nil && res == nil {
 		// we only error out early if there's no response to work with
-		return fmt.Errorf("error while assigning bug %s: %w", issue.Key, err)
+		return fmt.Errorf("error while updating bug %s: %w", issue.Key, err)
 	}
 
 	var body string
@@ -26,7 +26,7 @@ func assign(jiraClient *jira.Client, issue jira.Issue, assignee TeamMember) erro
 	switch res.StatusCode {
 	case http.StatusOK, http.StatusNoContent, http.StatusAccepted:
 	default:
-		return fmt.Errorf("unexpected status code %q from Jira while assigning bug %s: err=%w body=%s", res.Status, issue.Key, err, body)
+		return fmt.Errorf("unexpected status code %q from Jira while updating bug %s: err=%w body=%s", res.Status, issue.Key, err, body)
 	}
 
 	return nil

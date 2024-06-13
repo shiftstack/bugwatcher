@@ -13,6 +13,7 @@ import (
 	"github.com/shiftstack/bugwatcher/pkg/query"
 )
 
+const queryARTReconciliation = query.ShiftStack + `AND labels in ("art:reconciliation")`
 const queryUntriaged = query.ShiftStack + `AND ( assignee is EMPTY OR assignee = shiftstack ) AND (labels not in ("Triaged") OR labels is EMPTY)`
 
 var (
@@ -40,11 +41,56 @@ func main() {
 		}
 	}
 
-	slackClient := &http.Client{}
-
-	now := time.Now()
-	var gotErrors bool
 	var wg sync.WaitGroup
+	var gotErrors bool
+
+	// first, pre-set any necessary fields for the ART reconciliation bugs to avoid "busy work"...
+	for issue := range query.SearchIssues(context.Background(), jiraClient, queryARTReconciliation) {
+		wg.Add(1)
+		go func(issue jira.Issue) {
+			defer wg.Done()
+
+			log.Printf("Updating issue %q", issue.Key)
+
+			// These changes are idempotent, so we don't need to check for the current value
+			updates := map[string]any{
+				"update": map[string]any{
+					"priority": []map[string]any{
+						{
+							"set": map[string]any{"name": "Normal"},
+						},
+					},
+					"customfield_12320850": []map[string]any{ // Release Note Type
+						{
+							"set": map[string]any{"value": "Release Note Not Required"},
+						},
+					},
+					"customfield_12320940": []map[string]any{ // Test Coverage
+						{
+							"set": []map[string]any{
+								{"value": "-"},
+							},
+						},
+					},
+				},
+			}
+			if err := update(jiraClient, issue, updates); err != nil {
+				gotErrors = true
+				log.Print(err)
+				return
+			}
+		}(issue)
+	}
+	wg.Wait()
+
+	if gotErrors {
+		os.Exit(1)
+	}
+
+	slackClient := &http.Client{}
+	now := time.Now()
+
+	// ...then do the actual triage assignment
 	for issue := range query.SearchIssues(context.Background(), jiraClient, queryUntriaged) {
 		wg.Add(1)
 		go func(issue jira.Issue) {

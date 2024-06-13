@@ -1,10 +1,17 @@
 # Shiftstack Bugwatcher
 
+A collection of scripts to assist us in triaging our bugs.
+
+```shell
+make build
+```
+
 ## pretriage
 
 Usage:
+
 ```shell
-go build ./cmd/pretriage && ./pretriage`
+./pretriage
 ```
 
 Finds untriaged, unassigned Shiftstack bugs and assigns them to a team member.
@@ -51,11 +58,28 @@ Optional environment variable: `TEAM_VACATION` in the form:
 ]
 ```
 
+## triage
+
+Usage:
+
+```shell
+./triage
+```
+
+Reminds assignees about the bugs assigned to them for triage.
+
+Required environment variables:
+
+* `JIRA_TOKEN`: a [Jira API token](https://issues.redhat.com/secure/ViewProfile.jspa?selectedTab=com.atlassian.pats.pats-plugin:jira-user-personal-access-tokens) of an account that can access the OCPBUGS project
+* `SLACK_HOOK`: a [Slack hook](https://api.slack.com/messaging/webhooks) URL
+* `TEAM_MEMBERS_DICT` is a JSON object in the form described [above][pretriage].
+
 ## posttriage
 
 Usage:
+
 ```shell
-go build ./cmd/posttriage && ./posttriage
+./posttriage
 ```
 
 Resets the `Triaged` keyword on bugs that still need attention.
@@ -67,8 +91,9 @@ Required environment variables:
 ## doctext
 
 Usage:
+
 ```shell
-go build ./cmd/doctext && ./doctext
+./doctext
 ```
 
 Finds resolved bugs lacking a doc text, and posts a reminder to Slack.
