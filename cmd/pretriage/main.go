@@ -13,8 +13,14 @@ import (
 	"github.com/shiftstack/bugwatcher/pkg/query"
 )
 
-const queryARTReconciliation = query.ShiftStack + `AND labels in ("art:reconciliation")`
 const queryUntriaged = query.ShiftStack + `AND ( assignee is EMPTY OR assignee = shiftstack ) AND (labels not in ("Triaged") OR labels is EMPTY)`
+const queryARTReconciliation = query.ShiftStack + `AND labels in ("art:reconciliation")
+	AND (
+		priority is EMPTY OR
+		"Release Note Type" is EMPTY OR
+		"Test Coverage" is EMPTY
+	)
+`
 
 var (
 	SLACK_HOOK        = os.Getenv("SLACK_HOOK")
