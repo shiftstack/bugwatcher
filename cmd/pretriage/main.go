@@ -50,7 +50,7 @@ func main() {
 	var wg sync.WaitGroup
 	var gotErrors bool
 
-	// first, pre-set any necessary fields for the ART reconciliation bugs to avoid "busy work"...
+	log.Print("pre-setting any necessary fields for the ART reconciliation bugs...")
 	for issue := range query.SearchIssues(context.Background(), jiraClient, queryARTReconciliation) {
 		wg.Add(1)
 		go func(issue jira.Issue) {
@@ -96,7 +96,7 @@ func main() {
 	slackClient := &http.Client{}
 	now := time.Now()
 
-	// ...then do the actual triage assignment
+	log.Print("Running the actual triage assignment...")
 	for issue := range query.SearchIssues(context.Background(), jiraClient, queryUntriaged) {
 		wg.Add(1)
 		go func(issue jira.Issue) {
