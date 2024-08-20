@@ -20,7 +20,7 @@ const ShiftStack = `project = "OpenShift Bugs"
 				"Cloud Compute / Cloud Controller Manager",
 				"Cloud Compute / Cluster Autoscaler",
 				"Cloud Compute / MachineHealthCheck",
-				"Cloud Compute / Other Provider")
+				"Cloud Compute / Unknown")
 			AND (
 				summary ~ "osp"
 				OR summary ~ "openstack"
