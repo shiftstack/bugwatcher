@@ -58,6 +58,16 @@ Optional environment variable: `TEAM_VACATION` in the form:
 ]
 ```
 
+### Local testing
+
+A local script will set the required environment variables for you if you
+provide a [vault](https://vault.ci.openshift.org) token.
+
+```shell
+export VAULT_TOKEN=$vault_token
+make run-pretriage
+```
+
 ## triage
 
 Usage:
