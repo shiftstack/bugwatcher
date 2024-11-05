@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"slices"
 
 	jira "github.com/andygrunwald/go-jira"
 )
@@ -16,8 +15,8 @@ type triageCheck func(jira.Issue) (triaged bool, msg string, err error)
 func priorityCheck(issue jira.Issue) (bool, string, error) {
 	// If a bug has been closed as a non-bug, we shouldn't insist on a priority.
 	// Taken from https://issues.redhat.com/rest/api/2/resolution
-	nonBugs := []string{"Won't Do", "Cannot Reproduce", "Can't Do", "Duplicate", "Not a bug", "Obsolete"}
-	if slices.Contains(nonBugs, issue.Fields.Resolution.Name) {
+	switch issue.Fields.Resolution.Name {
+	case "Won't Do", "Cannot Reproduce", "Can't Do", "Duplicate", "Not a bug", "Obsolete":
 		return true, "", nil
 	}
 	if issue.Fields.Priority == nil || issue.Fields.Priority.Name == "Undefined" {
