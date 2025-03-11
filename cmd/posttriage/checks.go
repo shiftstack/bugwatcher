@@ -12,15 +12,23 @@ import (
 // err is non-nil in case of failure.
 type triageCheck func(jira.Issue) (triaged bool, msg string, err error)
 
-func priorityCheck(issue jira.Issue) (bool, string, error) {
-	// If a bug has been closed as a non-bug, we shouldn't insist on a priority.
+func isNotBug(issue jira.Issue) bool {
 	// Taken from https://issues.redhat.com/rest/api/2/resolution
 	if issue.Fields.Resolution != nil {
 		switch issue.Fields.Resolution.Name {
 		case "Won't Do", "Cannot Reproduce", "Can't Do", "Duplicate", "Not a Bug", "Obsolete":
-			return true, "", nil
+			return true
 		}
 	}
+	return false
+}
+
+func priorityCheck(issue jira.Issue) (bool, string, error) {
+	// If a bug has been closed as a non-bug, we shouldn't insist on a priority.
+	if isNotBug(issue) {
+		return true, "", nil
+	}
+
 	if issue.Fields.Priority == nil || issue.Fields.Priority.Name == "Undefined" {
 		return false, "the Priority assessment is missing", nil
 	}
@@ -116,6 +124,11 @@ func TestCoverageFromIssue(issue jira.Issue) (testCoverage, error) {
 }
 
 func testCoverageCheck(issue jira.Issue) (bool, string, error) {
+	// If a bug has been closed as a non-bug, we shouldn't insist on test coverage.
+	if isNotBug(issue) {
+		return true, "", nil
+	}
+
 	tc, err := TestCoverageFromIssue(issue)
 	if err != nil {
 		return false, "", fmt.Errorf("failed to parse Test coverage: %w", err)
