@@ -17,7 +17,7 @@ func priorityCheck(issue jira.Issue) (bool, string, error) {
 	// Taken from https://issues.redhat.com/rest/api/2/resolution
 	if issue.Fields.Resolution != nil {
 		switch issue.Fields.Resolution.Name {
-		case "Won't Do", "Cannot Reproduce", "Can't Do", "Duplicate", "Not a bug", "Obsolete":
+		case "Won't Do", "Cannot Reproduce", "Can't Do", "Duplicate", "Not a Bug", "Obsolete":
 			return true, "", nil
 		}
 	}
