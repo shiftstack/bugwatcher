@@ -1,6 +1,6 @@
 module github.com/shiftstack/bugwatcher
 
-go 1.21
+go 1.23.6
 
 require github.com/andygrunwald/go-jira v1.16.0
 
