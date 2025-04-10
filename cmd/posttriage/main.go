@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	jira "github.com/andygrunwald/go-jira"
+	"github.com/shiftstack/bugwatcher/pkg/jiraclient"
 	"github.com/shiftstack/bugwatcher/pkg/query"
 )
 
@@ -18,16 +19,9 @@ var JIRA_TOKEN = os.Getenv("JIRA_TOKEN")
 func main() {
 	ctx := context.Background()
 
-	var jiraClient *jira.Client
-	{
-		var err error
-		jiraClient, err = jira.NewClient(
-			(&jira.BearerAuthTransport{Token: JIRA_TOKEN}).Client(),
-			query.JiraBaseURL,
-		)
-		if err != nil {
-			log.Fatalf("FATAL: error building a Jira client: %v", err)
-		}
+	jiraClient, err := jiraclient.NewWithToken(query.JiraBaseURL, JIRA_TOKEN)
+	if err != nil {
+		log.Fatalf("error building a Jira client: %v", err)
 	}
 
 	triageChecks := [...]triageCheck{

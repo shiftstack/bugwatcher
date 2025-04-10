@@ -10,6 +10,7 @@ import (
 
 	jira "github.com/andygrunwald/go-jira"
 	"github.com/shiftstack/bugwatcher/cmd/triage/tasker"
+	"github.com/shiftstack/bugwatcher/pkg/jiraclient"
 	"github.com/shiftstack/bugwatcher/pkg/query"
 )
 
@@ -29,16 +30,9 @@ func main() {
 		log.Fatalf("error unmarshaling TEAM_MEMBERS_DICT: %v", err)
 	}
 
-	var jiraClient *jira.Client
-	{
-		var err error
-		jiraClient, err = jira.NewClient(
-			(&jira.BearerAuthTransport{Token: JIRA_TOKEN}).Client(),
-			query.JiraBaseURL,
-		)
-		if err != nil {
-			log.Fatalf("error building a Jira client: %v", err)
-		}
+	jiraClient, err := jiraclient.NewWithToken(query.JiraBaseURL, JIRA_TOKEN)
+	if err != nil {
+		log.Fatalf("error building a Jira client: %v", err)
 	}
 
 	var (
