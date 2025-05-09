@@ -19,3 +19,15 @@ lint:
 run-pretriage: pretriage
 	./hack/run_with_env.sh ./$<
 .PHONY: run-pretriage
+
+run-triage: triage
+	./hack/run_with_env.sh ./$<
+.PHONY: run-triage
+
+run-posttriage: posttriage
+	./hack/run_with_env.sh ./$<
+.PHONY: run-posttriage
+
+run-doctext: doctext
+	./hack/run_with_env.sh ./$<
+.PHONY: run-doctext
