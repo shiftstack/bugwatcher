@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"net/http"
 	"os"
 	"strings"
 	"sync"
@@ -12,6 +11,7 @@ import (
 	"github.com/shiftstack/bugwatcher/cmd/triage/tasker"
 	"github.com/shiftstack/bugwatcher/pkg/jiraclient"
 	"github.com/shiftstack/bugwatcher/pkg/query"
+	"github.com/shiftstack/bugwatcher/pkg/slack"
 )
 
 const queryUntriaged = query.ShiftStack + `AND (labels not in ("Triaged") OR labels is EMPTY) AND "Need Info From" is EMPTY`
@@ -40,7 +40,7 @@ func main() {
 		gotErrors bool
 		wg        sync.WaitGroup
 	)
-	slackClient := &http.Client{}
+	slackClient := slack.New()
 	issuesByAssignee := new(tasker.Tasker)
 	for issue := range query.SearchIssues(ctx, jiraClient, queryUntriaged) {
 		wg.Add(1)
@@ -72,7 +72,7 @@ func main() {
 			teamMember = team["team"]
 		}
 
-		if err := notify(SLACK_HOOK, slackClient, issues, teamMember); err != nil {
+		if err := slackClient.Send(SLACK_HOOK, notification(issues, teamMember)); err != nil {
 			gotErrors = true
 			log.Print(err)
 			return

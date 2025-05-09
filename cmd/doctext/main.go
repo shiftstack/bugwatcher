@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"net/http"
 	"os"
 	"strings"
 	"sync"
@@ -11,6 +10,7 @@ import (
 	jira "github.com/andygrunwald/go-jira"
 	"github.com/shiftstack/bugwatcher/pkg/jiraclient"
 	"github.com/shiftstack/bugwatcher/pkg/query"
+	"github.com/shiftstack/bugwatcher/pkg/slack"
 )
 
 const queryTriaged = query.ShiftStack + `AND status in ("Release Pending", Verified, ON_QA) AND "Release Note Text" is EMPTY`
@@ -43,8 +43,8 @@ func main() {
 		gotErrors bool
 		wg        sync.WaitGroup
 	)
-	slackClient := &http.Client{}
-	issues := make(map[string][]jira.Issue)
+	slackClient := slack.New()
+	issuesNeedingAttention := make(map[string][]jira.Issue)
 	for issue := range query.SearchIssues(ctx, jiraClient, queryTriaged) {
 		wg.Add(1)
 		found++
@@ -71,19 +71,19 @@ func main() {
 				} else {
 					assignee = issue.Fields.Assignee.Name
 				}
-				issues[assignee] = append(issues[assignee], issue)
+				issuesNeedingAttention[assignee] = append(issuesNeedingAttention[assignee], issue)
 
 			}
 		}(issue)
 	}
 	wg.Wait()
 
-	for assignee, issue := range issues {
+	for assignee, issues := range issuesNeedingAttention {
 		teamMember, ok := team[assignee]
 		if !ok {
 			teamMember = team["team"]
 		}
-		if err := notify(SLACK_HOOK, slackClient, issue, teamMember); err != nil {
+		if err := slackClient.Send(SLACK_HOOK, notification(issues, teamMember)); err != nil {
 			gotErrors = true
 			log.Print(err)
 			return
