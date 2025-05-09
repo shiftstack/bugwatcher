@@ -17,3 +17,6 @@ github.com/pkg/errors
 ## explicit
 github.com/trivago/tgo/tcontainer
 github.com/trivago/tgo/treflect
+# gopkg.in/yaml.v3 v3.0.1
+## explicit
+gopkg.in/yaml.v3

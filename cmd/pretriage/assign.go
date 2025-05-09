@@ -8,8 +8,8 @@ import (
 	jira "github.com/andygrunwald/go-jira"
 )
 
-func assign(jiraClient *jira.Client, issue jira.Issue, assignee TeamMember) error {
-	res, err := jiraClient.Issue.UpdateAssignee(issue.ID, &jira.User{Name: assignee.JiraName})
+func assign(jiraClient *jira.Client, issue jira.Issue, assigneeJiraName string) error {
+	res, err := jiraClient.Issue.UpdateAssignee(issue.ID, &jira.User{Name: assigneeJiraName})
 	if err != nil && res == nil {
 		// we only error out early if there's no response to work with
 		return fmt.Errorf("error while assigning bug %s: %w", issue.Key, err)

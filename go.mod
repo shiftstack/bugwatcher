@@ -2,7 +2,10 @@ module github.com/shiftstack/bugwatcher
 
 go 1.23.6
 
-require github.com/andygrunwald/go-jira v1.16.0
+require (
+	github.com/andygrunwald/go-jira v1.16.0
+	gopkg.in/yaml.v3 v3.0.1
+)
 
 require (
 	github.com/fatih/structs v1.1.0 // indirect

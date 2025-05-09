@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 	"sync"
@@ -12,6 +13,7 @@ import (
 	"github.com/shiftstack/bugwatcher/pkg/jiraclient"
 	"github.com/shiftstack/bugwatcher/pkg/query"
 	"github.com/shiftstack/bugwatcher/pkg/slack"
+	"github.com/shiftstack/bugwatcher/pkg/team"
 )
 
 const queryUntriaged = query.ShiftStack + `AND ( assignee is EMPTY OR assignee = shiftstack ) AND (labels not in ("Triaged") OR labels is EMPTY)`
@@ -24,16 +26,34 @@ const queryARTReconciliation = query.ShiftStack + `AND labels in ("art:reconcili
 `
 
 var (
-	SLACK_HOOK        = os.Getenv("SLACK_HOOK")
-	JIRA_TOKEN        = os.Getenv("JIRA_TOKEN")
-	TEAM_MEMBERS_DICT = os.Getenv("TEAM_MEMBERS_DICT")
-	TEAM_VACATION     = os.Getenv("TEAM_VACATION")
+	SLACK_HOOK = os.Getenv("SLACK_HOOK")
+	JIRA_TOKEN = os.Getenv("JIRA_TOKEN")
+	PEOPLE     = os.Getenv("PEOPLE")
+	TEAM       = os.Getenv("TEAM")
 )
 
 func main() {
-	var team Team
-	if err := team.Load(strings.NewReader(TEAM_MEMBERS_DICT), strings.NewReader(TEAM_VACATION)); err != nil {
-		log.Fatalf("error unmarshaling TEAM_MEMBERS_DICT: %v", err)
+	ctx := context.Background()
+
+	var people, triagers []team.Person
+	{
+		var err error
+		people, err = team.Load(strings.NewReader(PEOPLE), strings.NewReader(TEAM))
+		if err != nil {
+			log.Fatalf("error fetching team information: %v", err)
+		}
+
+		triagers = make([]team.Person, 0, len(people))
+
+		now := time.Now()
+		for _, p := range people {
+			if p.BugTriage && p.IsAvailable(now) {
+				triagers = append(triagers, p)
+			}
+		}
+		if len(triagers) < 1 {
+			log.Fatal("no triagers available")
+		}
 	}
 
 	jiraClient, err := jiraclient.NewWithToken(query.JiraBaseURL, JIRA_TOKEN)
@@ -45,7 +65,7 @@ func main() {
 	var gotErrors bool
 
 	log.Print("pre-setting any necessary fields for the ART reconciliation bugs...")
-	for issue := range query.SearchIssues(context.Background(), jiraClient, queryARTReconciliation) {
+	for issue := range query.SearchIssues(ctx, jiraClient, queryARTReconciliation) {
 		wg.Add(1)
 		go func(issue jira.Issue) {
 			defer wg.Done()
@@ -88,14 +108,13 @@ func main() {
 	}
 
 	slackClient := slack.New()
-	now := time.Now()
 
 	log.Print("Running the actual triage assignment...")
-	for issue := range query.SearchIssues(context.Background(), jiraClient, queryUntriaged) {
+	for issue := range query.SearchIssues(ctx, jiraClient, queryUntriaged) {
 		wg.Add(1)
 		go func(issue jira.Issue) {
 			defer wg.Done()
-			var assignee TeamMember
+			assignee := &triagers[rand.Intn(len(triagers))]
 			if parent, isBackport, err := backportParent(jiraClient, issue); isBackport {
 				if err != nil {
 					log.Print(err)
@@ -104,31 +123,21 @@ func main() {
 				}
 				if parent.Fields.Assignee != nil {
 					log.Printf("Issue %q has parent %q, which is assigned to %q", issue.Key, parent.Key, censorEmail(parent.Fields.Assignee.Name))
-					if teamMember, ok := team.MemberByJiraName(parent.Fields.Assignee.Name); ok {
-						assignee = teamMember
+					if p, ok := team.PersonByJiraName(triagers, parent.Fields.Assignee.Name); ok {
+						assignee = &p
 					}
 				}
 			}
 
-			if assignee.JiraName == "" {
-				var err error
-				assignee, err = team.RandomAvailable(now)
-				if err != nil {
-					gotErrors = true
-					log.Printf("Error finding an assignee for issue %q: %v", issue.Key, err)
-					return
-				}
-			}
+			log.Printf("Assigning issue %q to %q", issue.Key, censorEmail(assignee.Jira))
 
-			log.Printf("Assigning issue %q to %q", issue.Key, censorEmail(assignee.JiraName))
-
-			if err := assign(jiraClient, issue, assignee); err != nil {
+			if err := assign(jiraClient, issue, assignee.Jira); err != nil {
 				gotErrors = true
 				log.Print(err)
 				return
 			}
 
-			if err := slackClient.Send(SLACK_HOOK, notification(issue, assignee)); err != nil {
+			if err := slackClient.Send(SLACK_HOOK, notification(issue, assignee.Slack)); err != nil {
 				gotErrors = true
 				log.Print(err)
 				return
@@ -156,13 +165,14 @@ func init() {
 		log.Print("Required environment variable not found: JIRA_TOKEN")
 	}
 
-	if TEAM_MEMBERS_DICT == "" {
+	if PEOPLE == "" {
 		ex_usage = true
-		log.Print("Required environment variable not found: TEAM_MEMBERS_DICT")
+		log.Print("Required environment variable not found: PEOPLE")
 	}
 
-	if TEAM_VACATION == "" {
-		TEAM_VACATION = "[]"
+	if TEAM == "" {
+		ex_usage = true
+		log.Print("Required environment variable not found: TEAM")
 	}
 
 	if ex_usage {
