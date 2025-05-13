@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"net/http"
 	"os"
 	"strings"
 	"sync"
@@ -12,6 +11,7 @@ import (
 	jira "github.com/andygrunwald/go-jira"
 	"github.com/shiftstack/bugwatcher/pkg/jiraclient"
 	"github.com/shiftstack/bugwatcher/pkg/query"
+	"github.com/shiftstack/bugwatcher/pkg/slack"
 )
 
 const queryUntriaged = query.ShiftStack + `AND ( assignee is EMPTY OR assignee = shiftstack ) AND (labels not in ("Triaged") OR labels is EMPTY)`
@@ -87,7 +87,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	slackClient := &http.Client{}
+	slackClient := slack.New()
 	now := time.Now()
 
 	log.Print("Running the actual triage assignment...")
@@ -128,7 +128,7 @@ func main() {
 				return
 			}
 
-			if err := notify(SLACK_HOOK, slackClient, issue, assignee); err != nil {
+			if err := slackClient.Send(SLACK_HOOK, notification(issue, assignee)); err != nil {
 				gotErrors = true
 				log.Print(err)
 				return
