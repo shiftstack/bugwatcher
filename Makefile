@@ -1,15 +1,15 @@
 build: pretriage triage posttriage doctext
 
-pretriage: cmd/pretriage pkg/jiraclient pkg/query
+pretriage: cmd/pretriage pkg/jiraclient pkg/query pkg/slack pkg/team
 	go build ./$<
 
-triage: cmd/triage pkg/jiraclient pkg/query
+triage: cmd/triage pkg/jiraclient pkg/query pkg/slack pkg/team
 	go build ./$<
 
 posttriage: cmd/posttriage pkg/jiraclient pkg/query
 	go build ./$<
 
-doctext: cmd/doctext pkg/jiraclient pkg/query
+doctext: cmd/doctext pkg/jiraclient pkg/query pkg/slack pkg/team
 	go build ./$<
 
 lint:

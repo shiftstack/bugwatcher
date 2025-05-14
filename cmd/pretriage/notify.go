@@ -8,17 +8,11 @@ import (
 	"github.com/shiftstack/bugwatcher/pkg/slack"
 )
 
-func notification(issue jira.Issue, assignee TeamMember) string {
-	var slackId string
-	if strings.HasPrefix(assignee.SlackId, "!subteam^") {
-		slackId = "<" + assignee.SlackId + ">"
-	} else {
-		slackId = "<@" + assignee.SlackId + ">"
-	}
-
+func notification(issue jira.Issue, slackId string) string {
 	var notification strings.Builder
+	notification.WriteByte('<')
 	notification.WriteString(slackId)
-	notification.WriteString(" you have been assigned triage of this bug: ")
+	notification.WriteString("> you have been assigned triage of this bug: ")
 	notification.WriteString(slack.Link(query.JiraBaseURL+"browse/"+issue.Key, issue.Key))
 	return notification.String()
 }

@@ -12,22 +12,28 @@ import (
 	"github.com/shiftstack/bugwatcher/pkg/jiraclient"
 	"github.com/shiftstack/bugwatcher/pkg/query"
 	"github.com/shiftstack/bugwatcher/pkg/slack"
+	"github.com/shiftstack/bugwatcher/pkg/team"
 )
 
 const queryUntriaged = query.ShiftStack + `AND (labels not in ("Triaged") OR labels is EMPTY) AND "Need Info From" is EMPTY`
 
 var (
-	SLACK_HOOK        = os.Getenv("SLACK_HOOK")
-	JIRA_TOKEN        = os.Getenv("JIRA_TOKEN")
-	TEAM_MEMBERS_DICT = os.Getenv("TEAM_MEMBERS_DICT")
+	SLACK_HOOK = os.Getenv("SLACK_HOOK")
+	JIRA_TOKEN = os.Getenv("JIRA_TOKEN")
+	PEOPLE     = os.Getenv("PEOPLE")
+	TEAM       = os.Getenv("TEAM")
 )
 
 func main() {
 	ctx := context.Background()
 
-	var team Team
-	if err := team.Load(strings.NewReader(TEAM_MEMBERS_DICT)); err != nil {
-		log.Fatalf("error unmarshaling TEAM_MEMBERS_DICT: %v", err)
+	var people []team.Person
+	{
+		var err error
+		people, err = team.Load(strings.NewReader(PEOPLE), strings.NewReader(TEAM))
+		if err != nil {
+			log.Fatalf("error fetching team information: %v", err)
+		}
 	}
 
 	jiraClient, err := jiraclient.NewWithToken(query.JiraBaseURL, JIRA_TOKEN)
@@ -66,13 +72,15 @@ func main() {
 			break
 		}
 
-		teamMember, ok := team[assignee]
-		if !ok {
+		var slackId string
+		if person, ok := team.PersonByJiraName(people, assignee); ok {
+			slackId = person.Slack
+		} else {
 			log.Printf("failed to find slack ID for team member %s", assignee)
-			teamMember = team["team"]
+			slackId = team.TeamSlackId
 		}
 
-		if err := slackClient.Send(SLACK_HOOK, notification(issues, teamMember)); err != nil {
+		if err := slackClient.Send(SLACK_HOOK, notification(issues, slackId)); err != nil {
 			gotErrors = true
 			log.Print(err)
 			return
@@ -96,9 +104,14 @@ func init() {
 		log.Print("Required environment variable not found: JIRA_TOKEN")
 	}
 
-	if TEAM_MEMBERS_DICT == "" {
+	if PEOPLE == "" {
 		ex_usage = true
-		log.Print("Required environment variable not found: TEAM_MEMBERS_DICT")
+		log.Print("Required environment variable not found: PEOPLE")
+	}
+
+	if TEAM == "" {
+		ex_usage = true
+		log.Print("Required environment variable not found: TEAM")
 	}
 
 	if ex_usage {
