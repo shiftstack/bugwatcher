@@ -74,11 +74,23 @@ func Load(peopleYAML, teamYAML io.Reader) ([]Person, error) {
 	return people, nil
 }
 
-// The boolean is false if no team member was found with that Jira name.
+// PersonByJiraName returns the first person in the slice with the given Jira
+// name. The returned boolean is false if not found.
 func PersonByJiraName(people []Person, jiraName string) (Person, bool) {
-	for _, person := range people {
-		if person.Jira == jiraName {
-			return person, true
+	for i := range people {
+		if people[i].Jira == jiraName {
+			return people[i], true
+		}
+	}
+	return Person{}, false
+}
+
+// PersonByGithubHandle returns the first person in the slice with the given
+// Github handle. The returned boolean is false if not found.
+func PersonByGithubHandle(people []Person, githubHandle string) (Person, bool) {
+	for i := range people {
+		if people[i].Github == githubHandle {
+			return people[i], true
 		}
 	}
 	return Person{}, false
