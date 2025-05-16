@@ -21,7 +21,17 @@ func main() {
 		log.Fatalf("Error loading team members: %v", err)
 	}
 
-	fmt.Printf("Found %d people:\n", len(people))
+	fmt.Printf("Found %d people\n", len(people))
+
+	{
+		var count int
+		for i := range people {
+			if people[i].TeamMember {
+				count++
+			}
+		}
+		fmt.Printf("Found %d team members\n", count)
+	}
 }
 
 func init() {
