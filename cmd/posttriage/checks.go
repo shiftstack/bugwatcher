@@ -122,19 +122,3 @@ func TestCoverageFromIssue(issue jira.Issue) (testCoverage, error) {
 		return testCoverageNone, fmt.Errorf("unknown test coverage value: %s", testCoverageMap["id"])
 	}
 }
-
-func testCoverageCheck(issue jira.Issue) (bool, string, error) {
-	// If a bug has been closed as a non-bug, we shouldn't insist on test coverage.
-	if isNotBug(issue) {
-		return true, "", nil
-	}
-
-	tc, err := TestCoverageFromIssue(issue)
-	if err != nil {
-		return false, "", fmt.Errorf("failed to parse Test coverage: %w", err)
-	}
-	if tc == testCoverageNone {
-		return false, "the Test coverage assessment is missing", nil
-	}
-	return true, "", nil
-}

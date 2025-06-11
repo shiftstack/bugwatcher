@@ -27,7 +27,6 @@ func main() {
 	triageChecks := [...]triageCheck{
 		priorityCheck,
 		releaseBlockerCheck,
-		testCoverageCheck,
 	}
 
 	var (
