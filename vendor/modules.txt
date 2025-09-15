@@ -1,4 +1,4 @@
-# github.com/andygrunwald/go-jira v1.16.0
+# github.com/andygrunwald/go-jira v1.16.1
 ## explicit; go 1.15
 github.com/andygrunwald/go-jira
 # github.com/fatih/structs v1.1.0
