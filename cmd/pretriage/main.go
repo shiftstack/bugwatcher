@@ -16,7 +16,7 @@ import (
 	"github.com/shiftstack/bugwatcher/pkg/team"
 )
 
-const queryUntriaged = query.ShiftStack + `AND ( assignee is EMPTY OR assignee = shiftstack ) AND (labels not in ("Triaged") OR labels is EMPTY)`
+const queryUntriaged = query.ShiftStack + `AND ( assignee is EMPTY OR assignee = "shiftstack-dev@redhat.com" ) AND (labels not in ("Triaged") OR labels is EMPTY)`
 const queryARTReconciliation = query.ShiftStack + `AND labels in ("art:reconciliation")
 	AND (
 		priority is EMPTY OR
