@@ -56,6 +56,5 @@ check_or_fetch() {
 check_or_fetch SLACK_HOOK slack      forum-shiftstack
 check_or_fetch JIRA_TOKEN bugwatcher jira-token
 check_or_fetch PEOPLE     team       people.yaml
-check_or_fetch TEAM       team       team.yaml
 
 exec "$@"

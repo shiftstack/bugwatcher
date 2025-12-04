@@ -29,7 +29,6 @@ var (
 	SLACK_HOOK = os.Getenv("SLACK_HOOK")
 	JIRA_TOKEN = os.Getenv("JIRA_TOKEN")
 	PEOPLE     = os.Getenv("PEOPLE")
-	TEAM       = os.Getenv("TEAM")
 )
 
 func main() {
@@ -38,7 +37,7 @@ func main() {
 	var people, triagers []team.Person
 	{
 		var err error
-		people, err = team.Load(strings.NewReader(PEOPLE), strings.NewReader(TEAM))
+		people, err = team.Load(strings.NewReader(PEOPLE))
 		if err != nil {
 			log.Fatalf("error fetching team information: %v", err)
 		}
@@ -168,11 +167,6 @@ func init() {
 	if PEOPLE == "" {
 		ex_usage = true
 		log.Print("Required environment variable not found: PEOPLE")
-	}
-
-	if TEAM == "" {
-		ex_usage = true
-		log.Print("Required environment variable not found: TEAM")
 	}
 
 	if ex_usage {
