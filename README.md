@@ -27,20 +27,14 @@ Required environment variables:
   github_handle: ghuser
   jira_name: jirauser
   slack_id: U012334
-- kerberos: user2
-  github_handle: ghuser2
-  jira_name: jirauser2
-  slack_id: U0122345
-```
-
-* `TEAM`: an object containing team members, referencing the `kerberos` property of PEOPLE. It is a YAML object in the form:
-
-```yaml
-user1:
   bug_triage: true
   leave:
   - start: 2024-11-21
     end: 2025-02-28
+- kerberos: user2
+  github_handle: ghuser2
+  jira_name: jirauser2
+  slack_id: U0122345
 ```
 
 ### Local testing
@@ -67,7 +61,7 @@ Required environment variables:
 
 * `JIRA_TOKEN`: a [Jira API token](https://issues.redhat.com/secure/ViewProfile.jspa?selectedTab=com.atlassian.pats.pats-plugin:jira-user-personal-access-tokens) of an account that can access the OCPBUGS project
 * `SLACK_HOOK`: a [Slack hook](https://api.slack.com/messaging/webhooks) URL
-* `PEOPLE` and `TEAM` described [above][pretriage].
+* `PEOPLE` described [above][pretriage].
 
 ## posttriage
 
@@ -97,4 +91,4 @@ Required environment variables:
 
 * `JIRA_TOKEN`: a [Jira API token](https://issues.redhat.com/secure/ViewProfile.jspa?selectedTab=com.atlassian.pats.pats-plugin:jira-user-personal-access-tokens) of an account that can access the OCPBUGS project
 * `SLACK_HOOK`: a [Slack hook](https://api.slack.com/messaging/webhooks) URL
-* `PEOPLE` and `TEAM` described [above][pretriage].
+* `PEOPLE` described [above][pretriage].
