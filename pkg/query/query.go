@@ -13,5 +13,5 @@ const ShiftStack = `project = "OpenShift Bugs"
 			"Test Framework / OpenStack",
 			"HyperShift / OpenStack"
 		)
-	)
+	) AND labels != "bugwatcher-ignore"
 `
