@@ -109,7 +109,54 @@ func main() {
 	slackClient := slack.New()
 
 	log.Print("Running the actual triage assignment...")
+
+	// Collect all issues first, separating CVEs from regular bugs
+	var cveIssues []jira.Issue
+	var regularIssues []jira.Issue
+
 	for issue := range query.SearchIssues(ctx, jiraClient, queryUntriaged) {
+		if isVulnerability(issue) {
+			cveIssues = append(cveIssues, issue)
+		} else {
+			regularIssues = append(regularIssues, issue)
+		}
+	}
+
+	// Process CVE issues: group by CVE ID + Component, assign group together
+	if len(cveIssues) > 0 {
+		log.Printf("Found %d CVE issues, grouping...", len(cveIssues))
+		cveGroups := GroupCVEIssues(cveIssues)
+		log.Printf("Grouped into %d CVE groups", len(cveGroups))
+
+		for key, group := range cveGroups {
+			assignee := &triagers[rand.Intn(len(triagers))]
+
+			log.Printf("Assigning CVE group %q (%d issues) to %q",
+				key, len(group.Issues), censorEmail(assignee.Jira))
+
+			// Assign all issues in the group to the same person
+			for _, issue := range group.Issues {
+				wg.Add(1)
+				go func(issue jira.Issue) {
+					defer wg.Done()
+					if err := assign(jiraClient, issue, assignee.Jira); err != nil {
+						gotErrors = true
+						log.Print(err)
+					}
+				}(issue)
+			}
+			wg.Wait()
+
+			// Send single grouped notification
+			if err := slackClient.Send(SLACK_HOOK, cveGroupNotification(group, assignee.Slack)); err != nil {
+				gotErrors = true
+				log.Print(err)
+			}
+		}
+	}
+
+	// Process regular bugs: existing individual assignment flow
+	for _, issue := range regularIssues {
 		wg.Add(1)
 		go func(issue jira.Issue) {
 			defer wg.Done()
