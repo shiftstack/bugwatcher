@@ -4,7 +4,7 @@ import (
 	jira "github.com/andygrunwald/go-jira"
 )
 
-const isBlockedBy = "12310720"
+const isBlockedBy = "10000"
 
 // returns the first detected blocking issue. Note that the returned Jira issue
 // only contains the "assignee" field, for optimisation reasons; this can be

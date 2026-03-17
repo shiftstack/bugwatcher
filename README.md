@@ -18,7 +18,7 @@ Finds untriaged, unassigned Shiftstack bugs and assigns them to a team member.
 
 Required environment variables:
 
-* `JIRA_TOKEN`: a [Jira API token](https://issues.redhat.com/secure/ViewProfile.jspa?selectedTab=com.atlassian.pats.pats-plugin:jira-user-personal-access-tokens) of an account that can access the OCPBUGS project
+* `JIRA_TOKEN`: a [Jira API token](https://id.atlassian.com/manage-profile/security/api-tokens) of an account that can access the OCPBUGS project
 * `SLACK_HOOK`: a [Slack hook](https://api.slack.com/messaging/webhooks) URL
 * `PEOPLE`: an address book. It is a YAML object in the form:
 
@@ -59,7 +59,7 @@ Reminds assignees about the bugs assigned to them for triage.
 
 Required environment variables:
 
-* `JIRA_TOKEN`: a [Jira API token](https://issues.redhat.com/secure/ViewProfile.jspa?selectedTab=com.atlassian.pats.pats-plugin:jira-user-personal-access-tokens) of an account that can access the OCPBUGS project
+* `JIRA_TOKEN`: a [Jira API token](https://id.atlassian.com/manage-profile/security/api-tokens) of an account that can access the OCPBUGS project
 * `SLACK_HOOK`: a [Slack hook](https://api.slack.com/messaging/webhooks) URL
 * `PEOPLE` described [above][pretriage].
 
@@ -75,7 +75,7 @@ Resets the `Triaged` keyword on bugs that still need attention.
 
 Required environment variables:
 
-* `JIRA_TOKEN`: a [Jira API token](https://issues.redhat.com/secure/ViewProfile.jspa?selectedTab=com.atlassian.pats.pats-plugin:jira-user-personal-access-tokens) of an account that can access the OCPBUGS project
+* `JIRA_TOKEN`: a [Jira API token](https://id.atlassian.com/manage-profile/security/api-tokens) of an account that can access the OCPBUGS project
 
 ## doctext
 
@@ -89,6 +89,6 @@ Finds resolved bugs lacking a doc text, and posts a reminder to Slack.
 
 Required environment variables:
 
-* `JIRA_TOKEN`: a [Jira API token](https://issues.redhat.com/secure/ViewProfile.jspa?selectedTab=com.atlassian.pats.pats-plugin:jira-user-personal-access-tokens) of an account that can access the OCPBUGS project
+* `JIRA_TOKEN`: a [Jira API token](https://id.atlassian.com/manage-profile/security/api-tokens) of an account that can access the OCPBUGS project
 * `SLACK_HOOK`: a [Slack hook](https://api.slack.com/messaging/webhooks) URL
 * `PEOPLE` described [above][pretriage].

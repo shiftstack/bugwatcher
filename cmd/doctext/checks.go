@@ -16,17 +16,17 @@ func docTextCheck(issue jira.Issue) (bool, string, error) {
 	// We must set the type and (optionally) the text for release notes. The
 	// text must always be set unless the type is "No Doc Update".
 	//
-	// Release Note Type -> customfield_12320850
-	// Release Note Text -> customfield_12317313
+	// Release Note Type -> customfield_10785
+	// Release Note Text -> customfield_10783
 
-	if issue.Fields.Unknowns["customfield_12320850"] != nil {
-		releaseNoteType, ok := issue.Fields.Unknowns["customfield_12320850"].(map[string]any)
+	if issue.Fields.Unknowns["customfield_10785"] != nil {
+		releaseNoteType, ok := issue.Fields.Unknowns["customfield_10785"].(map[string]any)
 		if !ok {
 			return false, "", fmt.Errorf("failed to parse release note type for issue %s", issue.Key)
 		}
-		releaseNoteText := issue.Fields.Unknowns["customfield_12317313"]
+		releaseNoteText := issue.Fields.Unknowns["customfield_10783"]
 
-		if releaseNoteType["id"] == "31862" { // No Doc Update
+		if releaseNoteType["id"] == "12510" { // Release Note Not Required
 			return true, "", nil
 		}
 		if releaseNoteText != nil {

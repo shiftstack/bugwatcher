@@ -8,7 +8,7 @@ import (
 )
 
 // CVEFieldID is the JIRA custom field ID for the CVE identifier
-const CVEFieldID = "customfield_12324749"
+const CVEFieldID = "customfield_10667"
 
 // CVEGroup represents a group of related CVE issues
 type CVEGroup struct {

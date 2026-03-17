@@ -79,12 +79,12 @@ func main() {
 							"set": map[string]any{"name": "Normal"},
 						},
 					},
-					"customfield_12320850": []map[string]any{ // Release Note Type
+					"customfield_10785": []map[string]any{ // Release Note Type
 						{
 							"set": map[string]any{"value": "Release Note Not Required"},
 						},
 					},
-					"customfield_12320940": []map[string]any{ // Test Coverage
+					"customfield_10638": []map[string]any{ // Test Coverage
 						{
 							"set": []map[string]any{
 								{"value": "-"},
