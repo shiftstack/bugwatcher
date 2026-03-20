@@ -13,7 +13,7 @@ import (
 type triageCheck func(jira.Issue) (triaged bool, msg string, err error)
 
 func isNotBug(issue jira.Issue) bool {
-	// Taken from https://issues.redhat.com/rest/api/2/resolution
+	// Taken from https://redhat.atlassian.net/rest/api/2/resolution
 	if issue.Fields.Resolution != nil {
 		switch issue.Fields.Resolution.Name {
 		case "Won't Do", "Cannot Reproduce", "Can't Do", "Duplicate", "Not a Bug", "Obsolete":
@@ -47,22 +47,22 @@ type releaseBlocker string
 // ReleaseBlockerFromIssue parses releaseBlocker information from a Jira issue.
 func ReleaseBlockerFromIssue(issue jira.Issue) (releaseBlocker, error) {
 	// https://confluence.atlassian.com/jirakb/how-to-find-any-custom-field-s-ids-744522503.html
-	if issue.Fields.Unknowns["customfield_12319743"] == nil {
+	if issue.Fields.Unknowns["customfield_10847"] == nil {
 		return releaseBlockerNone, nil
 	}
 
-	releaseBlockerMap, ok := issue.Fields.Unknowns["customfield_12319743"].(map[string]any)
+	releaseBlockerMap, ok := issue.Fields.Unknowns["customfield_10847"].(map[string]any)
 	if !ok {
 		return releaseBlockerNone, fmt.Errorf("failed to parse (not a map)")
 	}
 
 	// https://confluence.atlassian.com/jirakb/how-to-retrieve-available-options-for-a-multi-select-customfield-via-jira-rest-api-815566715.html
 	switch releaseBlockerMap["id"] {
-	case "25755":
+	case "16772":
 		return releaseBlockerApproved, nil
-	case "25756":
+	case "16773":
 		return releaseBlockerProposed, nil
-	case "25757":
+	case "16774":
 		return releaseBlockerRejected, nil
 	default:
 		return releaseBlockerNone, fmt.Errorf("unknown Release Blocker value: %s", releaseBlockerMap["id"])
@@ -93,11 +93,11 @@ type testCoverage byte
 // TestCoverageFromIssue parses testCoverage information from a Jira issue.
 func TestCoverageFromIssue(issue jira.Issue) (testCoverage, error) {
 	// https://confluence.atlassian.com/jirakb/how-to-find-any-custom-field-s-ids-744522503.html
-	if issue.Fields.Unknowns["customfield_12320940"] == nil {
+	if issue.Fields.Unknowns["customfield_10638"] == nil {
 		return testCoverageNone, nil
 	}
 
-	testCoverageSlice, err := issue.Fields.Unknowns.Slice("customfield_12320940")
+	testCoverageSlice, err := issue.Fields.Unknowns.Slice("customfield_10638")
 	if err != nil {
 		return testCoverageNone, err
 	}
@@ -112,11 +112,11 @@ func TestCoverageFromIssue(issue jira.Issue) (testCoverage, error) {
 
 	// https://confluence.atlassian.com/jirakb/how-to-retrieve-available-options-for-a-multi-select-customfield-via-jira-rest-api-815566715.html
 	switch testCoverageMap["id"] {
-	case "27678":
+	case "15875":
 		return testCoverageAutomated, nil
-	case "27679":
+	case "15876":
 		return testCoverageManual, nil
-	case "27680":
+	case "15877":
 		return testCoverageNoCoverage, nil
 	default:
 		return testCoverageNone, fmt.Errorf("unknown test coverage value: %s", testCoverageMap["id"])

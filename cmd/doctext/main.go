@@ -18,6 +18,7 @@ const queryTriaged = query.ShiftStack + `AND status in ("Release Pending", Verif
 
 var (
 	SLACK_HOOK = os.Getenv("SLACK_HOOK")
+	JIRA_EMAIL = os.Getenv("JIRA_EMAIL")
 	JIRA_TOKEN = os.Getenv("JIRA_TOKEN")
 	PEOPLE     = os.Getenv("PEOPLE")
 )
@@ -34,7 +35,7 @@ func main() {
 		}
 	}
 
-	jiraClient, err := jiraclient.NewWithToken(query.JiraBaseURL, JIRA_TOKEN)
+	jiraClient, err := jiraclient.NewWithToken(query.JiraBaseURL, JIRA_EMAIL, JIRA_TOKEN)
 	if err != nil {
 		log.Fatalf("error building a Jira client: %v", err)
 	}
@@ -74,7 +75,7 @@ func main() {
 				if issue.Fields.Assignee == nil {
 					assignee = ""
 				} else {
-					assignee = issue.Fields.Assignee.Name
+					assignee = issue.Fields.Assignee.AccountID
 				}
 				issuesNeedingAttention[assignee] = append(issuesNeedingAttention[assignee], issue)
 
@@ -83,9 +84,9 @@ func main() {
 	}
 	wg.Wait()
 
-	for assigneeJiraName, issues := range issuesNeedingAttention {
+	for assigneeAccountID, issues := range issuesNeedingAttention {
 		var slackId string
-		if person, ok := team.PersonByJiraName(people, assigneeJiraName); ok {
+		if person, ok := team.PersonByJiraAccountID(people, assigneeAccountID); ok {
 			slackId = person.Slack
 		} else {
 			slackId = team.TeamSlackId
@@ -110,6 +111,11 @@ func init() {
 	if SLACK_HOOK == "" {
 		ex_usage = true
 		log.Print("Required environment variable not found: SLACK_HOOK")
+	}
+
+	if JIRA_EMAIL == "" {
+		ex_usage = true
+		log.Print("Required environment variable not found: JIRA_EMAIL")
 	}
 
 	if JIRA_TOKEN == "" {

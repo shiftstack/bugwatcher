@@ -14,12 +14,15 @@ import (
 
 const queryTriaged = query.ShiftStack + `AND labels = "Triaged"`
 
-var JIRA_TOKEN = os.Getenv("JIRA_TOKEN")
+var (
+	JIRA_EMAIL = os.Getenv("JIRA_EMAIL")
+	JIRA_TOKEN = os.Getenv("JIRA_TOKEN")
+)
 
 func main() {
 	ctx := context.Background()
 
-	jiraClient, err := jiraclient.NewWithToken(query.JiraBaseURL, JIRA_TOKEN)
+	jiraClient, err := jiraclient.NewWithToken(query.JiraBaseURL, JIRA_EMAIL, JIRA_TOKEN)
 	if err != nil {
 		log.Fatalf("error building a Jira client: %v", err)
 	}
@@ -78,6 +81,10 @@ func main() {
 }
 
 func init() {
+	if JIRA_EMAIL == "" {
+		log.Print("FATAL: Required environment variable not found: JIRA_EMAIL")
+		os.Exit(64)
+	}
 	if JIRA_TOKEN == "" {
 		log.Print("FATAL: Required environment variable not found: JIRA_TOKEN")
 		os.Exit(64)

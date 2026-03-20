@@ -16,7 +16,8 @@ import (
 	"github.com/shiftstack/bugwatcher/pkg/team"
 )
 
-const queryUntriaged = query.ShiftStack + `AND ( assignee is EMPTY OR assignee = "shiftstack-dev@redhat.com" ) AND (labels not in ("Triaged") OR labels is EMPTY)`
+var queryUntriaged string
+
 const queryARTReconciliation = query.ShiftStack + `AND labels in ("art:reconciliation")
 	AND (
 		priority is EMPTY OR
@@ -26,9 +27,11 @@ const queryARTReconciliation = query.ShiftStack + `AND labels in ("art:reconcili
 `
 
 var (
-	SLACK_HOOK = os.Getenv("SLACK_HOOK")
-	JIRA_TOKEN = os.Getenv("JIRA_TOKEN")
-	PEOPLE     = os.Getenv("PEOPLE")
+	SLACK_HOOK      = os.Getenv("SLACK_HOOK")
+	JIRA_EMAIL      = os.Getenv("JIRA_EMAIL")
+	JIRA_TOKEN      = os.Getenv("JIRA_TOKEN")
+	JIRA_ACCOUNT_ID = os.Getenv("JIRA_ACCOUNT_ID")
+	PEOPLE          = os.Getenv("PEOPLE")
 )
 
 func main() {
@@ -55,7 +58,7 @@ func main() {
 		}
 	}
 
-	jiraClient, err := jiraclient.NewWithToken(query.JiraBaseURL, JIRA_TOKEN)
+	jiraClient, err := jiraclient.NewWithToken(query.JiraBaseURL, JIRA_EMAIL, JIRA_TOKEN)
 	if err != nil {
 		log.Fatalf("error building a Jira client: %v", err)
 	}
@@ -79,12 +82,12 @@ func main() {
 							"set": map[string]any{"name": "Normal"},
 						},
 					},
-					"customfield_12320850": []map[string]any{ // Release Note Type
+					"customfield_10785": []map[string]any{ // Release Note Type
 						{
 							"set": map[string]any{"value": "Release Note Not Required"},
 						},
 					},
-					"customfield_12320940": []map[string]any{ // Test Coverage
+					"customfield_10638": []map[string]any{ // Test Coverage
 						{
 							"set": []map[string]any{
 								{"value": "-"},
@@ -132,14 +135,14 @@ func main() {
 			assignee := &triagers[rand.Intn(len(triagers))]
 
 			log.Printf("Assigning CVE group %q (%d issues) to %q",
-				key, len(group.Issues), censorEmail(assignee.Jira))
+				key, len(group.Issues), assignee.Kerberos)
 
 			// Assign all issues in the group to the same person
 			for _, issue := range group.Issues {
 				wg.Add(1)
 				go func(issue jira.Issue) {
 					defer wg.Done()
-					if err := assign(jiraClient, issue, assignee.Jira); err != nil {
+					if err := assign(jiraClient, issue, assignee.JiraAccountID); err != nil {
 						gotErrors = true
 						log.Print(err)
 					}
@@ -168,16 +171,16 @@ func main() {
 					return
 				}
 				if parent.Fields.Assignee != nil {
-					log.Printf("Issue %q has parent %q, which is assigned to %q", issue.Key, parent.Key, censorEmail(parent.Fields.Assignee.Name))
-					if p, ok := team.PersonByJiraName(triagers, parent.Fields.Assignee.Name); ok {
+					log.Printf("Issue %q has parent %q, which is assigned to %q", issue.Key, parent.Key, parent.Fields.Assignee.DisplayName)
+					if p, ok := team.PersonByJiraAccountID(triagers, parent.Fields.Assignee.AccountID); ok {
 						assignee = &p
 					}
 				}
 			}
 
-			log.Printf("Assigning issue %q to %q", issue.Key, censorEmail(assignee.Jira))
+			log.Printf("Assigning issue %q to %q", issue.Key, assignee.Kerberos)
 
-			if err := assign(jiraClient, issue, assignee.Jira); err != nil {
+			if err := assign(jiraClient, issue, assignee.JiraAccountID); err != nil {
 				gotErrors = true
 				log.Print(err)
 				return
@@ -200,15 +203,27 @@ func main() {
 func init() {
 	log.SetFlags(log.Ldate | log.Ltime | log.LUTC)
 
+	queryUntriaged = query.ShiftStack + `AND ( assignee is EMPTY OR assignee = "` + JIRA_ACCOUNT_ID + `" ) AND (labels not in ("Triaged") OR labels is EMPTY)`
+
 	ex_usage := false
 	if SLACK_HOOK == "" {
 		ex_usage = true
 		log.Print("Required environment variable not found: SLACK_HOOK")
 	}
 
+	if JIRA_EMAIL == "" {
+		ex_usage = true
+		log.Print("Required environment variable not found: JIRA_EMAIL")
+	}
+
 	if JIRA_TOKEN == "" {
 		ex_usage = true
 		log.Print("Required environment variable not found: JIRA_TOKEN")
+	}
+
+	if JIRA_ACCOUNT_ID == "" {
+		ex_usage = true
+		log.Print("Required environment variable not found: JIRA_ACCOUNT_ID")
 	}
 
 	if PEOPLE == "" {

@@ -53,8 +53,10 @@ check_or_fetch() {
 	export "${var_name?}"
 }
 
-check_or_fetch SLACK_HOOK slack      forum-shiftstack
-check_or_fetch JIRA_TOKEN bugwatcher jira-token
-check_or_fetch PEOPLE     team       people.yaml
+check_or_fetch SLACK_HOOK      slack      forum-shiftstack
+check_or_fetch JIRA_EMAIL      bugwatcher jira-email
+check_or_fetch JIRA_TOKEN      bugwatcher jira-token
+check_or_fetch JIRA_ACCOUNT_ID bugwatcher jira-account-id
+check_or_fetch PEOPLE          team       people.yaml
 
 exec "$@"
