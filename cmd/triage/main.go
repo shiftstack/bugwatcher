@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -92,7 +94,34 @@ func main() {
 	}
 }
 
+var helpFlag bool
+
 func init() {
+	flag.BoolVar(&helpFlag, "help", false, "Show this help message")
+	flag.BoolVar(&helpFlag, "h", false, "Show this help message")
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), `triage - triage ShiftStack Jira bugs
+
+Assigns untriaged ShiftStack Jira bugs to available team members and sends
+Slack notifications for each assignment.
+
+Environment variables:
+  SLACK_HOOK        Slack webhook URL for notifications
+  JIRA_EMAIL        Jira account email address
+  JIRA_TOKEN        Jira API token
+  PEOPLE            JSON-formatted team member information
+
+Flags:
+`)
+		flag.PrintDefaults()
+	}
+	flag.Parse()
+
+	if helpFlag {
+		flag.Usage()
+		os.Exit(0)
+	}
+
 	ex_usage := false
 	if SLACK_HOOK == "" {
 		ex_usage = true

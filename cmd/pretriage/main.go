@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -200,8 +202,36 @@ func main() {
 	}
 }
 
+var helpFlag bool
+
 func init() {
 	log.SetFlags(log.Ldate | log.Ltime | log.LUTC)
+
+	flag.BoolVar(&helpFlag, "help", false, "Show this help message")
+	flag.BoolVar(&helpFlag, "h", false, "Show this help message")
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), `pretriage - pre-triage ShiftStack Jira bugs
+
+Pre-sets required fields for ART reconciliation bugs, assigns untriaged bugs
+to available team members, and sends Slack notifications for each assignment.
+
+Environment variables:
+  SLACK_HOOK        Slack webhook URL for notifications
+  JIRA_EMAIL        Jira account email address
+  JIRA_TOKEN        Jira API token
+  JIRA_ACCOUNT_ID   Jira account ID used to identify self-assigned bugs
+  PEOPLE            JSON-formatted team member information
+
+Flags:
+`)
+		flag.PrintDefaults()
+	}
+	flag.Parse()
+
+	if helpFlag {
+		flag.Usage()
+		os.Exit(0)
+	}
 
 	queryUntriaged = query.ShiftStack + `AND ( assignee is EMPTY OR assignee = "` + JIRA_ACCOUNT_ID + `" ) AND (labels not in ("Triaged") OR labels is EMPTY)`
 
