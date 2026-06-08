@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -106,7 +108,35 @@ func main() {
 	}
 }
 
+var helpFlag bool
+
 func init() {
+	flag.BoolVar(&helpFlag, "help", false, "Show this help message")
+	flag.BoolVar(&helpFlag, "h", false, "Show this help message")
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), `doctext - notify assignees about missing release note text
+
+Finds ShiftStack Jira bugs in late-stage statuses (Release Pending, Verified,
+ON_QA) that are missing release note text and sends Slack notifications to
+their assignees.
+
+Environment variables:
+  SLACK_HOOK        Slack webhook URL for notifications
+  JIRA_EMAIL        Jira account email address
+  JIRA_TOKEN        Jira API token
+  PEOPLE            JSON-formatted team member information
+
+Flags:
+`)
+		flag.PrintDefaults()
+	}
+	flag.Parse()
+
+	if helpFlag {
+		flag.Usage()
+		os.Exit(0)
+	}
+
 	ex_usage := false
 	if SLACK_HOOK == "" {
 		ex_usage = true
