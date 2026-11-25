@@ -41,6 +41,11 @@ Required environment variables:
   slack_id: U0122345
 ```
 
+`pretriage` assigns bugs only to people with `bug_triage: true` who are not
+on leave. Each `leave` range includes both its `start` and `end` dates in UTC.
+The person becomes eligible again the day after the end date, unless another
+leave range applies. Leave does not reassign existing bugs or suppress reminders.
+
 ### Local testing
 
 A local script will set the required environment variables for you if you

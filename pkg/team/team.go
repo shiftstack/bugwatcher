@@ -25,12 +25,17 @@ type Person struct {
 	Slack         string `yaml:"slack_id"`
 
 	BugTriage bool    `yaml:"bug_triage,omitempty"`
-	leave     []Leave `yaml:"leave,omitempty"`
+	Leave     []Leave `yaml:"leave,omitempty"`
 }
 
+// IsAvailable reports whether t falls outside all inclusive UTC leave dates.
 func (p Person) IsAvailable(t time.Time) bool {
-	for _, leave := range p.leave {
-		if leave.End.After(t) && leave.Start.Before(t) {
+	const day = 24 * time.Hour
+	date := t.UTC().Truncate(day)
+	for _, leave := range p.Leave {
+		start := leave.Start.UTC().Truncate(day)
+		end := leave.End.UTC().Truncate(day)
+		if !date.Before(start) && !date.After(end) {
 			return false
 		}
 	}
